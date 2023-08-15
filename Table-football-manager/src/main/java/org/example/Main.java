@@ -1,5 +1,9 @@
 package org.example;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -85,6 +89,14 @@ public class Main {
                 10. Show all players
                 11. Show game scheduler
                 """);
+
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/","postgres","root")) {
+            new DBInitializer(connection).initDB();
+            DataLoader dataLoader = new DataLoader(connection);
+            dataLoader.loadUsersToDB();
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
 
         while (true) {
             getMenu();
