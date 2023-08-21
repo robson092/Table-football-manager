@@ -1,22 +1,45 @@
 package org.example;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Main {
     private static final Scanner sc = new Scanner(System.in);
 
-    private static void getPlayerName() {
+    private static void createNewPlayer() throws IOException, SQLException {
         sc.nextLine();
         System.out.println("Provide player's name:");
         String playerName = sc.nextLine();
+        while (checkIfPlayerExists(playerName)) {
+            System.out.println("Player is already exists. Please provide another name");
+            playerName = sc.nextLine();
+        }
+        User user = new User(playerName);
+        DataLoader.saveUserInTheFile(user);
+        DataLoader.saveSingleUserToDB(user);
+        System.out.println("Player has been successfully created!");
     }
 
-    private static void getTeamName() {
+    private static boolean checkIfPlayerExists(String playerName) throws IOException {
+        List<Map<String, String>> fileContent = DataLoader.getFileContent(Path.of("src/Tables/users_table.json"));
+        if (fileContent.isEmpty()) {
+            return false;
+        } else {
+            for (Map<String, String> singleUser : fileContent) {
+                if (singleUser.get("name").equalsIgnoreCase(playerName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static void getTeamName() throws SQLException, IOException {
         sc.nextLine();
         System.out.println("Provide team's name:");
         String teamName = sc.nextLine();
@@ -47,34 +70,7 @@ public class Main {
 
     }
 
-    private static void getMenu() {
-        System.out.println("Choose one of above number!");
-        while (!sc.hasNextInt()) {
-            System.out.println("That's not a number!");
-            sc.next();
-        }
-        int userChoice = sc.nextInt();
-        switch (userChoice) {
-            case 1, 4 -> getPlayerName();
-            case 2, 6, 8 -> getTeamName();
-            case 3 -> getTeamNameAndPlayerName();
-            case 5 -> System.out.println("User chose to move player to another team");
-            case 7 -> getGameTimeAndTeams();
-            case 9 -> System.out.println("User chose to show all teams");
-            case 10 -> System.out.println("User chose to show all players");
-            case 11 -> System.out.println("User chose to show all scheduled games");
-            default -> System.out.println("Incorrect number chosen! Please try again!");
-        }
-    }
-
-    private static void backToMenu(String input) {
-        if (input.equalsIgnoreCase("back")) {
-            getMenu();
-        }
-    }
-
-    public static void main(String[] args) {
-        System.out.println("Welcome to Table football manager!");
+    private static void getMenu() throws SQLException, IOException {
         System.out.println("Available actions:");
         System.out.println("""
                 1. Create player's account
@@ -89,18 +85,37 @@ public class Main {
                 10. Show all players
                 11. Show game scheduler
                 """);
-
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/","postgres","root")) {
-            new DBInitializer(connection).initDB();
-            DataLoader dataLoader = new DataLoader(connection);
-            dataLoader.loadUsersToDB();
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
+        System.out.println("Choose one of above number!");
+        while (!sc.hasNextInt()) {
+            System.out.println("That's not a number!");
+            sc.next();
         }
+        int userChoice = sc.nextInt();
+        switch (userChoice) {
+            case 1, 4 -> createNewPlayer();
+            case 2, 6, 8 -> getTeamName();
+            case 3 -> getTeamNameAndPlayerName();
+            case 5 -> System.out.println("User chose to move player to another team");
+            case 7 -> getGameTimeAndTeams();
+            case 9 -> System.out.println("User chose to show all teams");
+            case 10 -> System.out.println("User chose to show all players");
+            case 11 -> System.out.println("User chose to show all scheduled games");
+            default -> System.out.println("Incorrect number chosen! Please try again!");
+        }
+    }
 
+    private static void backToMenu(String input) throws SQLException, IOException {
+        if (input.equalsIgnoreCase("back")) {
+            getMenu();
+        }
+    }
+
+    public static void main(String[] args) throws SQLException, IOException {
+        System.out.println("Welcome to Table football manager!");
+        new DBInitializer().initDB();
+        DataLoader.loadFilesToDB();
         while (true) {
             getMenu();
-
         }
     }
 }
