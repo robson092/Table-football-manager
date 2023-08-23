@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DBInitializer {
-    private final List<String> SQL_PATH_LIST = List.of("/Data/init/users.sql");
+    private final List<String> SQL_PATH_LIST = List.of("/Data/init/users.sql", "/Data/init/teams.sql");
 
 
     void initDB() throws SQLException {

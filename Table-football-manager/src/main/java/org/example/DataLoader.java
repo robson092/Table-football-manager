@@ -41,12 +41,15 @@ public class DataLoader {
         for (String fileName : directoryContent) {
             List<Map<String, String>> fileContent = getFileContent(Path.of(directoryPath + fileName));
             if (fileName.startsWith("users")) {
-                loadUsersToDB(fileContent);
+                loadAllUsersFromFileToDB(fileContent);
+            }
+            if (fileName.startsWith("teams")) {
+                loadAllTeamsFromFileToDB(fileContent);
             }
         }
     }
 
-    static void loadUsersToDB(List<Map<String, String>> users) throws SQLException {
+    static void loadAllUsersFromFileToDB(List<Map<String, String>> users) throws SQLException {
         for (Map<String, String> singleUser : users) {
             String name = singleUser.get("name");
             String team = singleUser.get("team");
@@ -62,8 +65,22 @@ public class DataLoader {
             }
         }
     }
+    static void loadAllTeamsFromFileToDB(List<Map<String, String>> teams) throws SQLException {
+        for (Map<String, String> singleUser : teams) {
+            String name = singleUser.get("name");
+            try (Connection connection = DBCPDataSource.getConnection();
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO teams (name) VALUES ( ? )")) {
+                connection.setAutoCommit(false);
+                statement.setString(1, name);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
-    static void saveUserInTheFile(User user) throws IOException {
+    static void saveSingleUserInTheFile(User user) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         Path path = Paths.get("src/Tables/users_table.json");
         if (Files.size(path) != 0) {
@@ -97,6 +114,42 @@ public class DataLoader {
                 ResultSet generatedKeys = st.getGeneratedKeys();
                 generatedKeys.next();
                 userId = generatedKeys.getInt(1);
+            }
+            //user.setId(userId);
+        }
+    }
+
+    static void saveSingleTeamInTheFile(Team team) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Path path = Paths.get("src/Tables/teams_table.json");
+        if (Files.size(path) != 0) {
+            List<Map<String, String>> listOfTeams = getFileContent(path);
+            Map<String, String> newTeam = new HashMap<>();
+            newTeam.put("name", team.getName());
+            listOfTeams.add(newTeam);
+            objectMapper.writeValue(path.toFile(), listOfTeams);
+        } else {
+            Map<String, String> newTeam = new HashMap<>();
+            newTeam.put("name", team.getName());
+            List<Map<String, String>> listOfTeams = new ArrayList<>();
+            listOfTeams.add(newTeam);
+            objectMapper.writeValue(path.toFile(), listOfTeams);
+        }
+    }
+
+    static void saveSingleTeamToDB(Team team) throws SQLException {
+        String sql = "INSERT INTO teams (name) VALUES ( ? )";
+        Integer teamId = null;
+        try (var connection = DBCPDataSource.getConnection();
+             var st = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            connection.setAutoCommit(false);
+            st.setString(1, team.getName());
+            int rowsAffected = st.executeUpdate();
+            connection.commit();
+            if (rowsAffected == 1) {
+                ResultSet generatedKeys = st.getGeneratedKeys();
+                generatedKeys.next();
+                teamId = generatedKeys.getInt(1);
             }
             //user.setId(userId);
         }
