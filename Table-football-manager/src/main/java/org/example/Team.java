@@ -8,7 +8,7 @@ public class Team {
     @JsonIgnore
     private int id;
     private String name;
-    private List<User> users;
+    private List<Player> players;
 
     public Team() {
     }
@@ -25,15 +25,15 @@ public class Team {
         return name;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<Player> getUsers() {
+        return players;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setUsers(List<Player> players) {
+        this.players = players;
     }
 }
