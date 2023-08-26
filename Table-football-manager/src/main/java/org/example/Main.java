@@ -57,6 +57,17 @@ public class Main {
         DataLoader.updatePlayerWithTeamIdInFileAndDB(playerName, teamName);
     }
 
+    private static void choosePlayerToRemoveFromTeam() throws IOException, SQLException {
+        sc.nextLine();
+        System.out.println("Please provide player name to remove from team.");
+        String playerName = sc.nextLine();
+        while (!DataLoader.checkIfPlayerExistsAndHasTeam(playerName)) {
+            System.out.println("Provided player either does not exists or does not has a team. Please provide another player.");
+            playerName = sc.nextLine();
+        }
+        DataLoader.editTeamForGivenPlayer(playerName);
+    }
+
     private static void getGameTimeAndTeams() {
         sc.nextLine();
         String patter = "\\d{2}-\\d{2}";
@@ -112,7 +123,7 @@ public class Main {
             case 1 -> createNewPlayer();
             case 2 -> createNewTeam();
             case 3 -> addPlayerToTeam();
-            case 4 -> System.out.println("User chose to remove player from team");
+            case 4 -> choosePlayerToRemoveFromTeam();
             case 5 -> System.out.println("User chose to move player to another team");
             case 6 -> System.out.println("User chose to delete team");
             case 7 -> getGameTimeAndTeams();
