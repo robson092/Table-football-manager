@@ -88,7 +88,7 @@ public class DataLoader {
         if (Files.size(PATH_TO_USERS_FILE) != 0) {
             List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
             for (Map<String, Object> singleMapWithUser : fileContent) {
-                if (singleMapWithUser.get("name").equals(player.getName()) && player.getTeamId() != 0) {
+                if (singleMapWithUser.get("name").equals(player.getName())) {
                     singleMapWithUser.replace("name", player.getName());
                     singleMapWithUser.put("teamId", player.getTeamId());
                     objectMapper.writeValue(PATH_TO_USERS_FILE.toFile(), fileContent);
@@ -195,5 +195,19 @@ public class DataLoader {
             }
         }
         return false;
+    }
+
+    static void editTeamForGivenPlayer(String playerName) throws IOException, SQLException {
+        Player player = new Player(playerName, null);
+        saveSinglePlayerInTheFile(player);
+        String updateSql = "UPDATE players SET team_id = ? WHERE name = ?";
+        try (var con = DBCPDataSource.getConnection();
+             var updateSt = con.prepareStatement(updateSql)) {
+            updateSt.setObject(1, player.getTeamId());
+            updateSt.setString(2, playerName);
+            updateSt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
