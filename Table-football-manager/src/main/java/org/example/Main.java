@@ -15,14 +15,13 @@ public class Main {
         sc.nextLine();
         System.out.println("Provide player's name:");
         String playerName = sc.nextLine();
-        Path pathToPlayersFile = Path.of("src/Tables/users_table.json");
-        while (checkIfAlreadyExistsInTheFile(playerName, pathToPlayersFile)) {
+        while (checkIfAlreadyExistsInTheFile(playerName, DataLoader.PATH_TO_USERS_FILE)) {
             System.out.println("Player is already exists. Please provide another name.");
             playerName = sc.nextLine();
         }
-        User user = new User(playerName);
-        DataLoader.saveSingleUserInTheFile(user);
-        DataLoader.saveSingleUserToDB(user);
+        Player player = new Player(playerName);
+        DataLoader.saveSinglePlayerInTheFile(player);
+        DataLoader.saveSinglePlayerToDB(player);
         System.out.println("Player has been successfully created!");
     }
 
@@ -30,8 +29,7 @@ public class Main {
         sc.nextLine();
         System.out.println("Provide team's name:");
         String teamName = sc.nextLine();
-        Path pathToTeamsFile = Path.of("src/Tables/teams_table.json");
-        while (checkIfAlreadyExistsInTheFile(teamName, pathToTeamsFile)) {
+        while (checkIfAlreadyExistsInTheFile(teamName, DataLoader.PATH_TO_TEAMS_FILE)) {
             System.out.println("Team is already exists. Please provide another name.");
             teamName = sc.nextLine();
         }
@@ -42,12 +40,21 @@ public class Main {
         backToMenu(teamName);
     }
 
-    private static void getTeamNameAndPlayerName() {
+    private static void addPlayerToTeam() throws IOException {
         sc.nextLine();
         System.out.println("Provide team's name:");
         String teamName = sc.nextLine();
+        while (!checkIfAlreadyExistsInTheFile(teamName, DataLoader.PATH_TO_TEAMS_FILE)) {
+            System.out.println("There is no such team. Please provide correct team's name.");
+            teamName = sc.nextLine();
+        }
         System.out.println("Provide player's name:");
         String playerName = sc.nextLine();
+        while (DataLoader.checkIfPlayerExistsAndHasTeam(playerName)) {
+            System.out.println("Provided player either does not exist or already has a team. Please provide another player.");
+            playerName = sc.nextLine();
+        }
+        DataLoader.updatePlayerWithTeamIdInFileAndDB(playerName, teamName);
     }
 
     private static void getGameTimeAndTeams() {
@@ -66,13 +73,13 @@ public class Main {
 
     }
 
-    private static boolean checkIfAlreadyExistsInTheFile(String name, Path path) throws IOException {
-        List<Map<String, String>> fileContent = DataLoader.getFileContent(path);
+    static boolean checkIfAlreadyExistsInTheFile(String name, Path path) throws IOException {
+        List<Map<String, Object>> fileContent = DataLoader.getFileContent(path);
         if (fileContent.isEmpty()) {
             return false;
         } else {
-            for (Map<String, String> singleName : fileContent) {
-                if (singleName.get("name").equalsIgnoreCase(name)) {
+            for (Map<String, Object> singleName : fileContent) {
+                if (singleName.get("name").equals(name)) {
                     return true;
                 }
             }
@@ -104,7 +111,7 @@ public class Main {
         switch (userChoice) {
             case 1 -> createNewPlayer();
             case 2 -> createNewTeam();
-            case 3 -> getTeamNameAndPlayerName();
+            case 3 -> addPlayerToTeam();
             case 4 -> System.out.println("User chose to remove player from team");
             case 5 -> System.out.println("User chose to move player to another team");
             case 6 -> System.out.println("User chose to delete team");
