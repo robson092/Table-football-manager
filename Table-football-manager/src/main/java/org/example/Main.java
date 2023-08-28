@@ -68,6 +68,18 @@ public class Main {
         DataLoader.editTeamForGivenPlayer(playerName);
     }
 
+    private static void deletePlayer() throws IOException {
+        sc.nextLine();
+        System.out.println("Please provide player name to delete from application.");
+        String playerName = sc.nextLine();
+        while (!checkIfAlreadyExistsInTheFile(playerName, DataLoader.PATH_TO_USERS_FILE)) {
+            System.out.println("Provided player does not exists. Please provide another player.");
+            playerName = sc.nextLine();
+        }
+        DataLoader.deletePlayerFromFile(playerName);
+        DataLoader.deletePlayerFromDB(playerName);
+    }
+
     private static void getGameTimeAndTeams() {
         sc.nextLine();
         String patter = "\\d{2}-\\d{2}";
@@ -105,7 +117,7 @@ public class Main {
                 2. Create team
                 3. Add player to team
                 4. Remove player from team
-                5. Move player to another team
+                5. Delete player
                 6. Delete team
                 7. Plan game
                 8. Edit game
@@ -124,7 +136,7 @@ public class Main {
             case 2 -> createNewTeam();
             case 3 -> addPlayerToTeam();
             case 4 -> choosePlayerToRemoveFromTeam();
-            case 5 -> System.out.println("User chose to move player to another team");
+            case 5 -> deletePlayer();
             case 6 -> System.out.println("User chose to delete team");
             case 7 -> getGameTimeAndTeams();
             case 8 -> System.out.println("User chose to edit game");
