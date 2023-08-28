@@ -3,5 +3,5 @@ CREATE TABLE players (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     team_id INT,
-    CONSTRAINT fk_users FOREIGN KEY (team_id) REFERENCES teams(id)
+    CONSTRAINT fk_players FOREIGN KEY (team_id) REFERENCES teams (id) ON DELETE SET NULL
 )
