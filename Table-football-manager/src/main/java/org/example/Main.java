@@ -57,7 +57,7 @@ public class Main {
         DataLoader.updatePlayerWithTeamIdInFileAndDB(playerName, teamName);
     }
 
-    private static void choosePlayerToRemoveFromTeam() throws IOException, SQLException {
+    private static void choosePlayerToRemoveFromTeam() throws IOException {
         sc.nextLine();
         System.out.println("Please provide player name to remove from team.");
         String playerName = sc.nextLine();
@@ -109,6 +109,14 @@ public class Main {
 
     }
 
+    private static void showAllPlayers() {
+        sc.nextLine();
+        List<Map<String, String>> allPlayersWithTeamNames = DataLoader.getAllPlayersWithTeamNames();
+        for (Map<String, String> mapWithPlayers : allPlayersWithTeamNames) {
+            System.out.println("Name: " + mapWithPlayers.get("name") + "  Team: " + mapWithPlayers.get("team"));
+        }
+    }
+
     static boolean checkIfAlreadyExistsInTheFile(String name, Path path) throws IOException {
         List<Map<String, Object>> fileContent = DataLoader.getFileContent(path);
         if (fileContent.isEmpty()) {
@@ -132,10 +140,10 @@ public class Main {
                 4. Remove player from team
                 5. Delete player
                 6. Delete team
-                7. Plan game
+                7. Register game
                 8. Edit game
-                9. Show all teams
-                10. Show all players
+                9. Show all players
+                10. Show all teams
                 11. Show game scheduler
                 """);
         System.out.println("Choose one of above number!");
@@ -153,8 +161,8 @@ public class Main {
             case 6 -> deleteTeam();
             case 7 -> getGameTimeAndTeams();
             case 8 -> System.out.println("User chose to edit game");
-            case 9 -> System.out.println("User chose to show all teams");
-            case 10 -> System.out.println("User chose to show all players");
+            case 9 -> showAllPlayers();
+            case 10 -> System.out.println("User chose to show all teams");
             case 11 -> System.out.println("User chose to show all scheduled games");
             default -> System.out.println("Incorrect number chosen! Please try again!");
         }
@@ -170,6 +178,8 @@ public class Main {
         System.out.println("Welcome to Table football manager!");
         new DBInitializer().initDB();
         DataLoader.loadFilesToDB();
+        List<Map<String, String>> allPlayersWithTeamNames = DataLoader.getAllPlayersWithTeamNames();
+        System.out.println(allPlayersWithTeamNames);
         while (true) {
             getMenu();
         }
