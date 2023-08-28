@@ -285,7 +285,6 @@ public class DataLoader {
         try (var connection = DBCPDataSource.getConnection();
             var selectPlayersSt = connection.prepareStatement(selectPlayersSql);
             var selectTeamByIdSt = connection.prepareStatement(selectTeamByIdSql)) {
-            connection.setReadOnly(true);
             ResultSet resultSetWithTeams = selectTeamByIdSt.executeQuery();
             while (resultSetWithTeams.next()) {
                 teamsWithId.put(resultSetWithTeams.getInt(1), resultSetWithTeams.getString(2));
@@ -297,15 +296,35 @@ public class DataLoader {
                 for (Map.Entry<Integer, String> entry : teamsWithId.entrySet()) {
                     if (resultSetWithPlayers.getInt(3) == entry.getKey()) {
                         mapWithPlayers.put("team", entry.getValue());
-                    } else {
-                        mapWithPlayers.put("team", "no team");
                     }
                 }
                 listOfPlayersWithTeams.add(mapWithPlayers);
+            }
+            for (Map<String, String> mapWithPlayers : listOfPlayersWithTeams) {
+                if (!mapWithPlayers.containsKey("team")) {
+                    mapWithPlayers.put("team", "no team");
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return listOfPlayersWithTeams;
+    }
+
+    static List<Map<String, String>> getAllTeams() {
+        List<Map<String, String>> listOfTeams = new ArrayList<>();
+        String selectSql = "SELECT * FROM teams";
+        try (var connection = DBCPDataSource.getConnection();
+            var selectSt = connection.prepareStatement(selectSql)) {
+            ResultSet resultSetWithTeams = selectSt.executeQuery();
+            while (resultSetWithTeams.next()) {
+                Map<String, String> mapWithTeams = new HashMap<>();
+                mapWithTeams.put("team", resultSetWithTeams.getString(2));
+                listOfTeams.add(mapWithTeams);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return listOfTeams;
     }
 }
