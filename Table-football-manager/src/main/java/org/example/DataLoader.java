@@ -197,7 +197,7 @@ public class DataLoader {
         return false;
     }
 
-    static void editTeamForGivenPlayer(String playerName) throws IOException, SQLException {
+    static void editTeamForGivenPlayer(String playerName) throws IOException {
         Player player = new Player(playerName, null);
         saveSinglePlayerInTheFile(player);
         String updateSql = "UPDATE players SET team_id = ? WHERE name = ?";
@@ -224,14 +224,48 @@ public class DataLoader {
         objectMapper.writeValue(PATH_TO_USERS_FILE.toFile(), fileContent);
     }
 
-    static void deletePlayerFromDB(String playerName) {
+    static void deleteTeamFromFile(String teamName) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map<String, Object>> fileContent = getFileContent(PATH_TO_TEAMS_FILE);
+        for (Map<String, Object> singleMapWithTeam : fileContent) {
+            if (singleMapWithTeam.get("name").equals(teamName)) {
+                singleMapWithTeam.remove("name");
+            }
+        }
+        fileContent.removeIf(Map::isEmpty);
+        objectMapper.writeValue(PATH_TO_TEAMS_FILE.toFile(), fileContent);
+    }
+
+    static void updateAllPlayersInFileWhichTeamHasBeenDelete(String teamName) {
         int id = 0;
-        String selectSql = "SELECT id FROM players WHERE name = ?";
-        String deleteSql = "DELETE FROM players WHERE id = ?";
+        List<String> playersName = new ArrayList<>();
         try (var connection = DBCPDataSource.getConnection();
-            var selectSt = connection.prepareStatement(selectSql);
-            var deleteSt = connection.prepareStatement(deleteSql)) {
-            selectSt.setString(1, playerName);
+             var selectTeamSt = connection.prepareStatement("SELECT id FROM teams WHERE name = ?");
+             var selectPlayersSt = connection.prepareStatement("SELECT * FROM players WHERE team_id = ?")) {
+            selectTeamSt.setString(1, teamName);
+            ResultSet teamWithGivenId = selectTeamSt.executeQuery();
+            while (teamWithGivenId.next()) {
+                id = teamWithGivenId.getInt(1);
+            }
+            selectPlayersSt.setInt(1, id);
+            ResultSet allPlayersWithGivenId = selectPlayersSt.executeQuery();
+            while (allPlayersWithGivenId.next()) {
+                playersName.add(allPlayersWithGivenId.getString(2));
+            }
+            for (String name : playersName) {
+                editTeamForGivenPlayer(name);
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void deleteFromDB(String table, String name) {
+        int id = 0;
+        try (var connection = DBCPDataSource.getConnection();
+             var selectSt = connection.prepareStatement("SELECT id FROM " + table + " WHERE name = ?");
+             var deleteSt = connection.prepareStatement("DELETE FROM " + table + " WHERE id = ?")) {
+            selectSt.setString(1, name);
             ResultSet resultSet = selectSt.executeQuery();
             while (resultSet.next()) {
                 id = resultSet.getInt(1);
