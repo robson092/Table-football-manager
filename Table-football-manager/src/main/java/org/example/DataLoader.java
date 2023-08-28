@@ -210,4 +210,36 @@ public class DataLoader {
             throw new RuntimeException(e);
         }
     }
+
+    static void deletePlayerFromFile(String playerName) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
+        for (Map<String, Object> singleMapWithUser : fileContent) {
+            if (singleMapWithUser.get("name").equals(playerName)) {
+                singleMapWithUser.remove("name");
+                singleMapWithUser.remove("teamId");
+            }
+        }
+        fileContent.removeIf(Map::isEmpty);
+        objectMapper.writeValue(PATH_TO_USERS_FILE.toFile(), fileContent);
+    }
+
+    static void deletePlayerFromDB(String playerName) {
+        int id = 0;
+        String selectSql = "SELECT id FROM players WHERE name = ?";
+        String deleteSql = "DELETE FROM players WHERE id = ?";
+        try (var connection = DBCPDataSource.getConnection();
+            var selectSt = connection.prepareStatement(selectSql);
+            var deleteSt = connection.prepareStatement(deleteSql)) {
+            selectSt.setString(1, playerName);
+            ResultSet resultSet = selectSt.executeQuery();
+            while (resultSet.next()) {
+                id = resultSet.getInt(1);
+            }
+            deleteSt.setInt(1, id);
+            deleteSt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
