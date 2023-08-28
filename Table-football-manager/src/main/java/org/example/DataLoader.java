@@ -276,4 +276,36 @@ public class DataLoader {
             throw new RuntimeException(e);
         }
     }
+
+    static List<Map<String, String>> getAllPlayersWithTeamNames() {
+        List<Map<String, String>> listOfPlayersWithTeams = new ArrayList<>();
+        Map<Integer, String> teamsWithId = new HashMap<>();
+        String selectPlayersSql = "SELECT * FROM players";
+        String selectTeamByIdSql = "SELECT * FROM teams";
+        try (var connection = DBCPDataSource.getConnection();
+            var selectPlayersSt = connection.prepareStatement(selectPlayersSql);
+            var selectTeamByIdSt = connection.prepareStatement(selectTeamByIdSql)) {
+            connection.setReadOnly(true);
+            ResultSet resultSetWithTeams = selectTeamByIdSt.executeQuery();
+            while (resultSetWithTeams.next()) {
+                teamsWithId.put(resultSetWithTeams.getInt(1), resultSetWithTeams.getString(2));
+            }
+            ResultSet resultSetWithPlayers = selectPlayersSt.executeQuery();
+            while (resultSetWithPlayers.next()) {
+                Map<String, String> mapWithPlayers = new HashMap<>();
+                mapWithPlayers.put("name", resultSetWithPlayers.getString(2));
+                for (Map.Entry<Integer, String> entry : teamsWithId.entrySet()) {
+                    if (resultSetWithPlayers.getInt(3) == entry.getKey()) {
+                        mapWithPlayers.put("team", entry.getValue());
+                    } else {
+                        mapWithPlayers.put("team", "no team");
+                    }
+                }
+                listOfPlayersWithTeams.add(mapWithPlayers);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return listOfPlayersWithTeams;
+    }
 }
