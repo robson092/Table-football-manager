@@ -44,13 +44,13 @@ public class Main {
         sc.nextLine();
         System.out.println("Provide team's name:");
         String teamName = sc.nextLine();
-        while (!checkIfAlreadyExistsInTheFile(teamName, DataLoader.PATH_TO_TEAMS_FILE)) {
-            System.out.println("There is no such team. Please provide correct team's name.");
+        while (DataLoader.checkIfTeamIsFull(teamName)) {
+            System.out.println("There is either no such team or team is full. Please provide another team.");
             teamName = sc.nextLine();
         }
         System.out.println("Provide player's name:");
         String playerName = sc.nextLine();
-        while (DataLoader.checkIfPlayerExistsAndHasTeam(playerName)) {
+        while (!DataLoader.checkIfPlayerExistsAndHasNoTeam(playerName)) {
             System.out.println("Provided player either does not exist or already has a team. Please provide another player.");
             playerName = sc.nextLine();
         }
@@ -61,7 +61,7 @@ public class Main {
         sc.nextLine();
         System.out.println("Please provide player name to remove from team.");
         String playerName = sc.nextLine();
-        while (!DataLoader.checkIfPlayerExistsAndHasTeam(playerName)) {
+        while (DataLoader.checkIfPlayerExistsAndHasNoTeam(playerName)) {
             System.out.println("Provided player either does not exists or does not has a team. Please provide another player.");
             playerName = sc.nextLine();
         }
