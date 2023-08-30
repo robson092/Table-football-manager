@@ -185,14 +185,35 @@ public class DataLoader {
         saveSinglePlayerInTheFile(new Player(playerName, id));
     }
 
-    static boolean checkIfPlayerExistsAndHasTeam(String playerName) throws IOException {
+    static boolean checkIfPlayerExistsAndHasNoTeam(String playerName) throws IOException {
         List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
         if (Main.checkIfAlreadyExistsInTheFile(playerName, PATH_TO_USERS_FILE)) {
             for (Map<String, Object> singleMapWithUser : fileContent) {
-                if (playerName.equals(singleMapWithUser.get("name")) && !Objects.equals(singleMapWithUser.get("teamId"),null)) {
+                if (playerName.equals(singleMapWithUser.get("name")) && Objects.equals(singleMapWithUser.get("teamId"),null)) {
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    static boolean checkIfTeamIsFull(String teamName) throws IOException {
+        int teamId = 0;
+        int teamMemberCount = 0;
+        List<Map<String, String>> allTeams = getAllTeams();
+        for (Map<String, String> team : allTeams) {
+            if (Objects.equals(team.get("team"), teamName)) {
+                teamId = Integer.parseInt(team.get("id"));
+            }
+        }
+        List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
+        if (Main.checkIfAlreadyExistsInTheFile(teamName, PATH_TO_TEAMS_FILE)) {
+            for (Map<String, Object> mapWithPlayers : fileContent) {
+                if (Objects.equals(mapWithPlayers.get("teamId"), teamId)) {
+                    teamMemberCount++;
+                }
+            }
+            return teamMemberCount == 2;
         }
         return false;
     }
@@ -319,6 +340,7 @@ public class DataLoader {
             ResultSet resultSetWithTeams = selectSt.executeQuery();
             while (resultSetWithTeams.next()) {
                 Map<String, String> mapWithTeams = new HashMap<>();
+                mapWithTeams.put("id", String.valueOf(resultSetWithTeams.getInt(1)));
                 mapWithTeams.put("team", resultSetWithTeams.getString(2));
                 listOfTeams.add(mapWithTeams);
             }
