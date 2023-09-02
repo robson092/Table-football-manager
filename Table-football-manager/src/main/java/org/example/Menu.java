@@ -1,17 +1,24 @@
 package org.example;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-public class Main {
-    private static final Scanner sc = new Scanner(System.in);
+import static org.example.DataLoader.checkIfAlreadyExistsInTheFile;
 
-    private static void createNewPlayer() throws IOException, SQLException {
+public class Menu {
+    private static final Scanner sc = new Scanner(System.in);
+    private static final PlayerRepositoryDB playerRepositoryDB = new PlayerRepositoryDB();
+    private static final PlayerRepositoryFile playerRepositoryFile = new PlayerRepositoryFile();
+    private static final TeamRepositoryDB teamRepositoryDB = new TeamRepositoryDB();
+    private static final TeamRepositoryFile teamRepositoryFile = new TeamRepositoryFile();
+    private static final TeamService teamService = new TeamService();
+    private static final PlayerService playerService = new PlayerService();
+
+    private void createNewPlayer() throws IOException, SQLException, InterruptedException {
         sc.nextLine();
         System.out.println("Provide player's name:");
         String playerName = sc.nextLine();
@@ -20,12 +27,13 @@ public class Main {
             playerName = sc.nextLine();
         }
         Player player = new Player(playerName);
-        DataLoader.saveSinglePlayerInTheFile(player);
-        DataLoader.saveSinglePlayerToDB(player);
+        playerRepositoryFile.saveSinglePlayerInTheFile(player);
+        playerRepositoryDB.saveSinglePlayerToDB(player);
         System.out.println("Player has been successfully created!");
+        Thread.sleep(2000);
     }
 
-    private static void createNewTeam() throws SQLException, IOException {
+    private void createNewTeam() throws SQLException, IOException, InterruptedException {
         sc.nextLine();
         System.out.println("Provide team's name:");
         String teamName = sc.nextLine();
@@ -34,41 +42,46 @@ public class Main {
             teamName = sc.nextLine();
         }
         Team team = new Team(teamName);
-        DataLoader.saveSingleTeamInTheFile(team);
-        DataLoader.saveSingleTeamToDB(team);
+        teamRepositoryFile.saveSingleTeamInTheFile(team);
+        teamRepositoryDB.saveSingleTeamToDB(team);
         System.out.println("Player has been successfully created!");
-        backToMenu(teamName);
+        Thread.sleep(2000);
     }
 
-    private static void addPlayerToTeam() throws IOException {
+    private void addPlayerToTeam() throws IOException, InterruptedException {
         sc.nextLine();
         System.out.println("Provide team's name:");
         String teamName = sc.nextLine();
-        while (DataLoader.checkIfTeamIsFull(teamName)) {
+        while (teamService.checkIfTeamIsFull(teamName)) {
             System.out.println("There is either no such team or team is full. Please provide another team.");
             teamName = sc.nextLine();
         }
         System.out.println("Provide player's name:");
         String playerName = sc.nextLine();
-        while (!DataLoader.checkIfPlayerExistsAndHasNoTeam(playerName)) {
+        while (!playerService.checkIfPlayerExistsAndHasNoTeam(playerName)) {
             System.out.println("Provided player either does not exist or already has a team. Please provide another player.");
             playerName = sc.nextLine();
         }
-        DataLoader.updatePlayerWithTeamIdInFileAndDB(playerName, teamName);
+        int playerId = playerRepositoryDB.updatePlayerWithTeamIdInDB(playerName, teamName);
+        playerRepositoryFile.saveSinglePlayerInTheFile(new Player(playerName, playerId));
+        System.out.println("Player has been successfully added to the team.");
+        Thread.sleep(2000);
     }
 
-    private static void choosePlayerToRemoveFromTeam() throws IOException {
+    private void choosePlayerToRemoveFromTeam() throws IOException, InterruptedException {
         sc.nextLine();
         System.out.println("Please provide player name to remove from team.");
         String playerName = sc.nextLine();
-        while (DataLoader.checkIfPlayerExistsAndHasNoTeam(playerName)) {
+        while (playerService.checkIfPlayerExistsAndHasNoTeam(playerName)) {
             System.out.println("Provided player either does not exists or does not has a team. Please provide another player.");
             playerName = sc.nextLine();
         }
-        DataLoader.editTeamForGivenPlayer(playerName);
+        playerRepositoryDB.editTeamForGivenPlayer(playerName);
+        System.out.println("Player has been successfully removed from the team.");
+        Thread.sleep(2000);
     }
 
-    private static void deletePlayer() throws IOException {
+    private void deletePlayer() throws IOException, InterruptedException {
         sc.nextLine();
         System.out.println("Please provide player name to delete from application.");
         String playerName = sc.nextLine();
@@ -76,11 +89,13 @@ public class Main {
             System.out.println("Provided player does not exists. Please provide another player.");
             playerName = sc.nextLine();
         }
-        DataLoader.deletePlayerFromFile(playerName);
-        DataLoader.deleteFromDB("players", playerName);
+        playerRepositoryFile.deletePlayerFromFile(playerName);
+        playerRepositoryDB.deleteFromDB("players", playerName);
+        System.out.println("Player has been successfully deleted from application.");
+        Thread.sleep(2000);
     }
 
-    private static void deleteTeam() throws IOException {
+    private void deleteTeam() throws IOException, InterruptedException {
         sc.nextLine();
         System.out.println("Please provide team name to delete from application.");
         String teamName = sc.nextLine();
@@ -88,12 +103,14 @@ public class Main {
             System.out.println("Provided team does not exists. Please provide another player.");
             teamName = sc.nextLine();
         }
-        DataLoader.deleteTeamFromFile(teamName);
-        DataLoader.updateAllPlayersInFileWhichTeamHasBeenDelete(teamName);
-        DataLoader.deleteFromDB("teams", teamName);
+        teamRepositoryFile.deleteTeamFromFile(teamName);
+        playerRepositoryFile.updateAllPlayersInFileWhichTeamHasBeenDelete(teamName);
+        playerRepositoryDB.deleteFromDB("teams", teamName);
+        System.out.println("Team has been successfully deleted from application.");
+        Thread.sleep(2000);
     }
 
-    private static void getGameTimeAndTeams() {
+    private void getGameTimeAndTeams() {
         sc.nextLine();
         String patter = "\\d{2}-\\d{2}";
         System.out.println("Provide game time (dd-mm):");
@@ -109,37 +126,23 @@ public class Main {
 
     }
 
-    private static void showAllPlayers() {
+    private void showAllPlayers() {
         sc.nextLine();
-        List<Map<String, String>> allPlayersWithTeamNames = DataLoader.getAllPlayersWithTeamNames();
+        List<Map<String, String>> allPlayersWithTeamNames = playerRepositoryDB.getAllPlayersWithTeamNames();
         for (Map<String, String> mapWithPlayers : allPlayersWithTeamNames) {
             System.out.println("Name: " + mapWithPlayers.get("name") + "  Team: " + mapWithPlayers.get("team"));
         }
     }
 
-    private static void showAllTeams() {
+    private void showAllTeams() {
         sc.nextLine();
-        List<Map<String, String>> allTeams = DataLoader.getAllTeams();
+        List<Map<String, String>> allTeams = teamRepositoryDB.getAllTeams();
         for(Map<String, String> mapWithTeams : allTeams) {
             System.out.println("Name: " + mapWithTeams.get("team"));
         }
     }
 
-    static boolean checkIfAlreadyExistsInTheFile(String name, Path path) throws IOException {
-        List<Map<String, Object>> fileContent = DataLoader.getFileContent(path);
-        if (fileContent.isEmpty()) {
-            return false;
-        } else {
-            for (Map<String, Object> singleName : fileContent) {
-                if (singleName.get("name").equals(name)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static void getMenu() throws SQLException, IOException {
+    void getMenu() throws SQLException, IOException, InterruptedException {
         System.out.println("Available actions:");
         System.out.println("""
                 1. Create player's account
@@ -176,17 +179,8 @@ public class Main {
         }
     }
 
-    private static void backToMenu(String input) throws SQLException, IOException {
+    private void backToMenu(String input) throws SQLException, IOException, InterruptedException {
         if (input.equalsIgnoreCase("back")) {
-            getMenu();
-        }
-    }
-
-    public static void main(String[] args) throws SQLException, IOException {
-        System.out.println("Welcome to Table football manager!");
-        new DBInitializer().initDB();
-        DataLoader.loadFilesToDB();
-        while (true) {
             getMenu();
         }
     }
