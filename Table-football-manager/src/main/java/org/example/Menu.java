@@ -126,19 +126,31 @@ public class Menu {
 
     }
 
-    private void showAllPlayers() {
+    private void showAllPlayers() throws SQLException, IOException, InterruptedException {
         sc.nextLine();
         List<Map<String, String>> allPlayersWithTeamNames = playerRepositoryDB.getAllPlayersWithTeamNames();
         for (Map<String, String> mapWithPlayers : allPlayersWithTeamNames) {
             System.out.println("Name: " + mapWithPlayers.get("name") + "  Team: " + mapWithPlayers.get("team"));
         }
+        System.out.println("Type \"back\" to get back to menu.");
+        String backToMenuInput = sc.nextLine();
+        while (!backToMenu(backToMenuInput)) {
+            System.out.println("Type \"back\" to get back to menu.");
+            backToMenuInput = sc.nextLine();
+        }
     }
 
-    private void showAllTeams() {
+    private void showAllTeams() throws SQLException, IOException, InterruptedException {
         sc.nextLine();
         List<Map<String, String>> allTeams = teamRepositoryDB.getAllTeams();
-        for(Map<String, String> mapWithTeams : allTeams) {
+        for (Map<String, String> mapWithTeams : allTeams) {
             System.out.println("Name: " + mapWithTeams.get("team"));
+        }
+        System.out.println("Type \"back\" to get back to menu.");
+        String backToMenuInput = sc.nextLine();
+        while (!backToMenu(backToMenuInput)) {
+            System.out.println("Type \"back\" to get back to menu.");
+            backToMenuInput = sc.nextLine();
         }
     }
 
@@ -179,9 +191,11 @@ public class Menu {
         }
     }
 
-    private void backToMenu(String input) throws SQLException, IOException, InterruptedException {
+    private boolean backToMenu(String input) throws SQLException, IOException, InterruptedException {
         if (input.equalsIgnoreCase("back")) {
             getMenu();
+            return true;
         }
+        return false;
     }
 }
