@@ -7,7 +7,7 @@ CREATE TABLE games (
     first_team_gols INT,
     second_team_gols INT,
     game_status VARCHAR(255) NOT NULL,
-    result VARCHAR(255) NOT NULL,
+    result VARCHAR(255),
     CONSTRAINT fk_team_1 FOREIGN KEY (team_1_id) REFERENCES teams (id) ON DELETE CASCADE,
     CONSTRAINT fk_team_2 FOREIGN KEY (team_2_id) REFERENCES teams (id) ON DELETE CASCADE
 )
