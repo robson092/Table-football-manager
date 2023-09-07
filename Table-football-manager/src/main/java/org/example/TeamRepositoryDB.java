@@ -58,4 +58,20 @@ public class TeamRepositoryDB {
         }
         return listOfTeams;
     }
+
+    int getTeamId(String name) {
+        int id = 0;
+        String selectSql = "SELECT * FROM teams WHERE name = ?";
+        try (var connection = DBCPDataSource.getConnection();
+            var selectSt = connection.prepareStatement(selectSql)) {
+            selectSt.setString(1, name);
+            ResultSet resultSet = selectSt.executeQuery();
+            while (resultSet.next()) {
+                id = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return id;
+    }
 }

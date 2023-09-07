@@ -15,11 +15,11 @@ public class Game {
     public Game() {
     }
 
-    public Game(Team firstTeam, Team secondTeam, Date gameTime, GameStatus gameStatus) {
+    public Game(Team firstTeam, Team secondTeam, Date gameTime) {
         this.firstTeam = firstTeam;
         this.secondTeam = secondTeam;
         this.gameTime = gameTime;
-        this.gameStatus = gameStatus;
+        this.gameStatus = GameStatus.SCHEDULED;
     }
 
     public int getId() {

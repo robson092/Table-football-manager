@@ -110,15 +110,15 @@ public class Menu {
         Thread.sleep(2000);
     }
 
-    private void getGameTimeAndTeams() {
+    private void registerGame() {
         sc.nextLine();
-        String patter = "\\d{2}-\\d{2}";
-        System.out.println("Provide game time (dd-mm):");
-        while (!sc.hasNext(Pattern.compile(patter))) {
-            System.out.println("Incorrect game time format!");
-            sc.next();
-        }
-        String gameTime = sc.nextLine();
+//        String patter = "\\d{2}-\\d{2}";
+//        System.out.println("Provide game time (dd-mm):");
+//        while (!sc.hasNext(Pattern.compile(patter))) {
+//            System.out.println("Incorrect game time format!");
+//            sc.next();
+//        }
+        //String gameTime = sc.nextLine();
         System.out.println("Choose first team");
         String firstTeam = sc.nextLine();
         System.out.println("Choose second team");
@@ -182,7 +182,7 @@ public class Menu {
             case 4 -> choosePlayerToRemoveFromTeam();
             case 5 -> deletePlayer();
             case 6 -> deleteTeam();
-            case 7 -> getGameTimeAndTeams();
+            case 7 -> registerGame();
             case 8 -> System.out.println("User chose to edit game");
             case 9 -> showAllPlayers();
             case 10 -> showAllTeams();
