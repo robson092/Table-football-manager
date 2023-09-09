@@ -9,14 +9,19 @@ import static org.example.DataLoader.*;
 
 public class TeamService {
 
+    TeamDao teamDao = new TeamDao();
+
     boolean checkIfTeamIsFull(String teamName) throws IOException {
-        TeamRepositoryDB teamRepositoryDB = new TeamRepositoryDB();
-        int teamId = 0;
+        long teamId = 0;
         int teamMemberCount = 0;
-        List<Map<String, String>> allTeams = teamRepositoryDB.getAllTeams();
-        for (Map<String, String> team : allTeams) {
-            if (Objects.equals(team.get("team"), teamName)) {
-                teamId = Integer.parseInt(team.get("id"));
+        List<Team> teams = teamDao.getAll();
+        for (Team team : teams) {
+            if (team.getName().equals(teamName)) {
+                teamId = team.getId();
+                break;
+            }
+            if (teamId == 0) {
+                return true;
             }
         }
         List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
@@ -26,8 +31,15 @@ public class TeamService {
                     teamMemberCount++;
                 }
             }
-            return teamMemberCount == 2;
         }
-        return false;
+        return teamMemberCount == 2;
+    }
+
+    Team getTeamByName(String name) {
+        List<Team> teams = teamDao.getAll();
+        return teams.stream()
+                .filter(player -> player.getName().equals(name))
+                .reduce((player, player2) -> player)
+                .get();
     }
 }

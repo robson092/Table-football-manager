@@ -57,7 +57,7 @@ public class PlayerRepositoryFile {
     }
 
     void updateAllPlayersInFileWhichTeamHasBeenDelete(String teamName) {
-        PlayerRepositoryDB playerRepositoryDB = new PlayerRepositoryDB();
+        PlayerDao playerDao = new PlayerDao();
         int id = 0;
         List<String> playersName = new ArrayList<>();
         try (var connection = DBCPDataSource.getConnection();
@@ -74,7 +74,8 @@ public class PlayerRepositoryFile {
                 playersName.add(allPlayersWithGivenId.getString(2));
             }
             for (String name : playersName) {
-                playerRepositoryDB.editTeamForGivenPlayer(name);
+                //playerDao.editTeamForGivenPlayer(name);
+                saveSinglePlayerInTheFile(new Player(name));
             }
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);

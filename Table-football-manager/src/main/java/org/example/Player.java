@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Player {
     @JsonIgnore
-    private int id;
+    private long id;
     private String name;
     private Integer teamId;
 
@@ -20,7 +20,13 @@ public class Player {
         this.teamId = teamId;
     }
 
-    public int getId() {
+    public Player(int id, String name, Integer teamId) {
+        this.id = id;
+        this.name = name;
+        this.teamId = teamId;
+    }
+
+    public long getId() {
         return id;
     }
 
@@ -35,6 +41,10 @@ public class Player {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setTeamId(Integer teamId) {
+        this.teamId = teamId;
     }
 
     @Override

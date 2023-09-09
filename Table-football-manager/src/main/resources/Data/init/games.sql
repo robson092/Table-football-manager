@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS games CASCADE;
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
-    team_1_id INT NOT NULL UNIQUE,
-    team_2_id INT NOT NULL UNIQUE,
+    team_1_id BIGINT NOT NULL UNIQUE,
+    team_2_id BIGINT NOT NULL UNIQUE,
     game_time TIMESTAMP NOT NULL,
     first_team_gols INT,
     second_team_gols INT,

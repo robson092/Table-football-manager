@@ -1,12 +1,13 @@
 package org.example;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class Game {
-    private int id;
+    private long id;
     private Team firstTeam;
     private Team secondTeam;
-    private Date gameTime;
+    private Timestamp gameTime;
     private int firstTeamGols;
     private int secondTeamGols;
     private GameStatus gameStatus;
@@ -15,14 +16,14 @@ public class Game {
     public Game() {
     }
 
-    public Game(Team firstTeam, Team secondTeam, Date gameTime) {
+    public Game(Team firstTeam, Team secondTeam, Timestamp gameTime) {
         this.firstTeam = firstTeam;
         this.secondTeam = secondTeam;
         this.gameTime = gameTime;
         this.gameStatus = GameStatus.SCHEDULED;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -50,7 +51,7 @@ public class Game {
         return gameTime;
     }
 
-    public void setGameTime(Date gameTime) {
+    public void setGameTime(Timestamp gameTime) {
         this.gameTime = gameTime;
     }
 
