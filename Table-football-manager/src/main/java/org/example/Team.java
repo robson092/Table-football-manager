@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Team {
     @JsonIgnore
-    private int id;
+    private long id;
     private String name;
     private List<Player> players;
 
@@ -17,7 +17,12 @@ public class Team {
         this.name = name;
     }
 
-    public int getId() {
+    public Team(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public long getId() {
         return id;
     }
 

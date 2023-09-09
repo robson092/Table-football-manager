@@ -2,19 +2,18 @@ package org.example;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.regex.Pattern;
+import java.sql.Timestamp;
+import java.util.*;
 
 import static org.example.DataLoader.checkIfAlreadyExistsInTheFile;
 
 public class Menu {
     private static final Scanner sc = new Scanner(System.in);
-    private static final PlayerRepositoryDB playerRepositoryDB = new PlayerRepositoryDB();
+    private static final PlayerDao PLAYER_DAO = new PlayerDao();
     private static final PlayerRepositoryFile playerRepositoryFile = new PlayerRepositoryFile();
-    private static final TeamRepositoryDB teamRepositoryDB = new TeamRepositoryDB();
+    private static final TeamDao TEAM_DAO = new TeamDao();
     private static final TeamRepositoryFile teamRepositoryFile = new TeamRepositoryFile();
+    private static final GameDao GAME_DAO = new GameDao();
     private static final TeamService teamService = new TeamService();
     private static final PlayerService playerService = new PlayerService();
 
@@ -28,7 +27,7 @@ public class Menu {
         }
         Player player = new Player(playerName);
         playerRepositoryFile.saveSinglePlayerInTheFile(player);
-        playerRepositoryDB.saveSinglePlayerToDB(player);
+        PLAYER_DAO.save(player);
         System.out.println("Player has been successfully created!");
         Thread.sleep(2000);
     }
@@ -43,7 +42,7 @@ public class Menu {
         }
         Team team = new Team(teamName);
         teamRepositoryFile.saveSingleTeamInTheFile(team);
-        teamRepositoryDB.saveSingleTeamToDB(team);
+        TEAM_DAO.save(team);
         System.out.println("Player has been successfully created!");
         Thread.sleep(2000);
     }
@@ -62,7 +61,7 @@ public class Menu {
             System.out.println("Provided player either does not exist or already has a team. Please provide another player.");
             playerName = sc.nextLine();
         }
-        int playerId = playerRepositoryDB.updatePlayerWithTeamIdInDB(playerName, teamName);
+        int playerId = PLAYER_DAO.updatePlayerWithTeamIdInDB(playerName, teamName);
         playerRepositoryFile.saveSinglePlayerInTheFile(new Player(playerName, playerId));
         System.out.println("Player has been successfully added to the team.");
         Thread.sleep(2000);
@@ -76,7 +75,10 @@ public class Menu {
             System.out.println("Provided player either does not exists or does not has a team. Please provide another player.");
             playerName = sc.nextLine();
         }
-        playerRepositoryDB.editTeamForGivenPlayer(playerName);
+        Player chosenPlayer = playerService.getPlayerByName(playerName);
+        PLAYER_DAO.update(chosenPlayer, new String[] {"team_Id", null} );
+        chosenPlayer.setTeamId(null);
+        playerRepositoryFile.saveSinglePlayerInTheFile(chosenPlayer);
         System.out.println("Player has been successfully removed from the team.");
         Thread.sleep(2000);
     }
@@ -90,7 +92,7 @@ public class Menu {
             playerName = sc.nextLine();
         }
         playerRepositoryFile.deletePlayerFromFile(playerName);
-        playerRepositoryDB.deleteFromDB("players", playerName);
+        PLAYER_DAO.delete(playerService.getPlayerByName(playerName));
         System.out.println("Player has been successfully deleted from application.");
         Thread.sleep(2000);
     }
@@ -100,12 +102,12 @@ public class Menu {
         System.out.println("Please provide team name to delete from application.");
         String teamName = sc.nextLine();
         while (!checkIfAlreadyExistsInTheFile(teamName, DataLoader.PATH_TO_TEAMS_FILE)) {
-            System.out.println("Provided team does not exists. Please provide another player.");
+            System.out.println("Provided team does not exists. Please provide another team.");
             teamName = sc.nextLine();
         }
         teamRepositoryFile.deleteTeamFromFile(teamName);
         playerRepositoryFile.updateAllPlayersInFileWhichTeamHasBeenDelete(teamName);
-        playerRepositoryDB.deleteFromDB("teams", teamName);
+        TEAM_DAO.delete(teamService.getTeamByName(teamName));
         System.out.println("Team has been successfully deleted from application.");
         Thread.sleep(2000);
     }
@@ -119,18 +121,32 @@ public class Menu {
 //            sc.next();
 //        }
         //String gameTime = sc.nextLine();
-        System.out.println("Choose first team");
+        System.out.println("Choose first team:");
         String firstTeam = sc.nextLine();
-        System.out.println("Choose second team");
+        System.out.println("Choose second team:");
         String secondTeam = sc.nextLine();
-
+        Game game = new Game(teamService.getTeamByName(firstTeam),
+                teamService.getTeamByName(secondTeam), new Timestamp(new Date().getTime()));
+        GAME_DAO.save(game);
     }
 
-    private void showAllPlayers() throws SQLException, IOException, InterruptedException {
+    private void showAllPlayersWithTheirTeams() throws SQLException, IOException, InterruptedException {
         sc.nextLine();
-        List<Map<String, String>> allPlayersWithTeamNames = playerRepositoryDB.getAllPlayersWithTeamNames();
-        for (Map<String, String> mapWithPlayers : allPlayersWithTeamNames) {
-            System.out.println("Name: " + mapWithPlayers.get("name") + "  Team: " + mapWithPlayers.get("team"));
+        List<Player> players = PLAYER_DAO.getAll();
+        List<Team> teams = TEAM_DAO.getAll();
+        Map<String, String> playersWithTeams = new HashMap<>();
+        for (Player player : players) {
+            for (Team team : teams) {
+                if (player.getTeamId() == team.getId()) {
+                    playersWithTeams.put(player.getName(), team.getName());
+                }
+                if (player.getTeamId() == 0) {
+                    playersWithTeams.put(player.getName(), "No Team");
+                }
+            }
+        }
+        for (Map.Entry<String, String> entry : playersWithTeams.entrySet()) {
+            System.out.println("Player:" + entry.getKey() + "   Team: " + entry.getValue());
         }
         System.out.println("Type \"back\" to get back to menu.");
         String backToMenuInput = sc.nextLine();
@@ -142,9 +158,9 @@ public class Menu {
 
     private void showAllTeams() throws SQLException, IOException, InterruptedException {
         sc.nextLine();
-        List<Map<String, String>> allTeams = teamRepositoryDB.getAllTeams();
-        for (Map<String, String> mapWithTeams : allTeams) {
-            System.out.println("Name: " + mapWithTeams.get("team"));
+        List<Team> teams = TEAM_DAO.getAll();
+        for (Team team : teams) {
+            System.out.println("Name: " + team.getName());
         }
         System.out.println("Type \"back\" to get back to menu.");
         String backToMenuInput = sc.nextLine();
@@ -184,7 +200,7 @@ public class Menu {
             case 6 -> deleteTeam();
             case 7 -> registerGame();
             case 8 -> System.out.println("User chose to edit game");
-            case 9 -> showAllPlayers();
+            case 9 -> showAllPlayersWithTheirTeams();
             case 10 -> showAllTeams();
             case 11 -> System.out.println("User chose to show all scheduled games");
             default -> System.out.println("Incorrect number chosen! Please try again!");

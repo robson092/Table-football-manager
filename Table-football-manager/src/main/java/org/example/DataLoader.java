@@ -16,8 +16,8 @@ public class DataLoader {
     static final Path PATH_TO_TEAMS_FILE = Paths.get("src/Tables/teams_table.json");
     static final Path PATH_TO_USERS_FILE = Paths.get("src/Tables/players_table.json");
     static final String PATH_TO_TABLES_DIRECTORY = "src/Tables/";
-    private static final PlayerRepositoryDB playerRepositoryDB = new PlayerRepositoryDB();
-    private static final TeamRepositoryDB teamRepositoryDB = new TeamRepositoryDB();
+    private static final PlayerDao PLAYER_DAO = new PlayerDao();
+    private static final TeamDao TEAM_DAO = new TeamDao();
 
 
     private static Set<String> getDirectoryContent() {
@@ -41,15 +41,47 @@ public class DataLoader {
         });
     }
 
+    static void loadAllPlayersFromFileToDB(List<Map<String, Object>> users) throws SQLException {
+        for (Map<String, Object> singleUser : users) {
+            String name = (String) singleUser.get("name");
+            Integer teamId = (Integer) singleUser.get("teamId");
+            try (Connection connection = DBCPDataSource.getConnection();
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO players (name, team_id) VALUES ( ?, ? )")) {
+                connection.setAutoCommit(false);
+                statement.setString(1, name);
+                statement.setObject(2, teamId);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    static void loadAllTeamsFromFileToDB(List<Map<String, Object>> teams) throws SQLException {
+        for (Map<String, Object> singleTeam : teams) {
+            String name = (String) singleTeam.get("name");
+            try (Connection connection = DBCPDataSource.getConnection();
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO teams (name) VALUES ( ? )")) {
+                connection.setAutoCommit(false);
+                statement.setString(1, name);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     static void loadFilesToDB() throws IOException, SQLException {
         Set<String> directoryContent = DataLoader.getDirectoryContent();
         for (String fileName : directoryContent) {
             List<Map<String, Object>> fileContent = getFileContent(Path.of(PATH_TO_TABLES_DIRECTORY + fileName));
             if (fileName.startsWith("players")) {
-                playerRepositoryDB.loadAllPlayersFromFileToDB(fileContent);
+                loadAllPlayersFromFileToDB(fileContent);
             }
             if (fileName.startsWith("teams")) {
-                teamRepositoryDB.loadAllTeamsFromFileToDB(fileContent);
+                loadAllTeamsFromFileToDB(fileContent);
             }
         }
     }

@@ -2,8 +2,6 @@ package org.example;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 public class Application {
     public static void main(String[] args) throws SQLException, IOException, InterruptedException {
