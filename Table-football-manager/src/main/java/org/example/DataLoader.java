@@ -3,21 +3,19 @@ package org.example;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static java.util.stream.Collectors.toSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataLoader {
     static final Path PATH_TO_TEAMS_FILE = Paths.get("src/Tables/teams_table.json");
     static final Path PATH_TO_USERS_FILE = Paths.get("src/Tables/players_table.json");
     static final String PATH_TO_TABLES_DIRECTORY = "src/Tables/";
-    private static final PlayerDao PLAYER_DAO = new PlayerDao();
-    private static final TeamDao TEAM_DAO = new TeamDao();
 
 
     private static Set<String> getDirectoryContent() {
@@ -26,7 +24,7 @@ public class DataLoader {
                     .filter(file -> !Files.isDirectory(file))
                     .map(Path::getFileName)
                     .map(Path::toString)
-                    .collect(Collectors.toSet());
+                    .collect(toSet());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
