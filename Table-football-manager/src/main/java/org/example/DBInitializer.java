@@ -20,7 +20,7 @@ public class DBInitializer {
                     initSingleTable(st, path);
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
             }
         }
     }
