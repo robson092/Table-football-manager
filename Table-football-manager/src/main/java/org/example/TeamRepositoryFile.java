@@ -15,7 +15,7 @@ import static org.example.DataLoader.getFileContent;
 public class TeamRepositoryFile {
 
     void saveSingleTeamInTheFile(Team team) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         if (Files.size(PATH_TO_TEAMS_FILE) != 0) {
             List<Map<String, Object>> listOfTeams = getFileContent(PATH_TO_TEAMS_FILE);
             Map<String, Object> newTeam = new HashMap<>();
@@ -32,7 +32,7 @@ public class TeamRepositoryFile {
     }
 
     void deleteTeamFromFile(String teamName) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         List<Map<String, Object>> fileContent = getFileContent(PATH_TO_TEAMS_FILE);
         for (Map<String, Object> singleMapWithTeam : fileContent) {
             if (singleMapWithTeam.get("name").equals(teamName)) {

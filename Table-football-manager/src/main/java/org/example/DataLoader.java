@@ -3,14 +3,20 @@ package org.example;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.util.stream.Collectors.toSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toSet;
 
 public class DataLoader {
     static final Path PATH_TO_TEAMS_FILE = Paths.get("src/Tables/teams_table.json");
@@ -31,7 +37,7 @@ public class DataLoader {
     }
 
     static List<Map<String, Object>> getFileContent(Path path) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         if (Files.size(path) == 0) {
             return new ArrayList<>();
         }

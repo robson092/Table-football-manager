@@ -1,12 +1,7 @@
 package org.example;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import static org.example.DataLoader.*;
 
 public class TeamService {
 
@@ -21,7 +16,7 @@ public class TeamService {
         teamDao.save(team);
     }
 
-    boolean checkIfTeamIsFull(String teamName) throws IOException {
+    boolean checkIfTeamIsFull(String teamName) {
         long teamId = 0;
         int teamMemberCount = 0;
         List<Team> teams = teamDao.getAll();
