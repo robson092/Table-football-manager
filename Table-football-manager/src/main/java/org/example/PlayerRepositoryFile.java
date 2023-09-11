@@ -17,7 +17,7 @@ import static org.example.DataLoader.getFileContent;
 public class PlayerRepositoryFile {
 
     void saveSinglePlayerInTheFile(Player player) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         Map<String, Object> newUser = new HashMap<>();
         if (Files.size(PATH_TO_USERS_FILE) != 0) {
             List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
@@ -44,7 +44,7 @@ public class PlayerRepositoryFile {
     }
 
     void deletePlayerFromFile(String playerName) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
         for (Map<String, Object> singleMapWithUser : fileContent) {
             if (singleMapWithUser.get("name").equals(playerName)) {
@@ -57,7 +57,6 @@ public class PlayerRepositoryFile {
     }
 
     void updateAllPlayersInFileWhichTeamHasBeenDelete(String teamName) {
-        PlayerDao playerDao = new PlayerDao();
         int id = 0;
         List<String> playersName = new ArrayList<>();
         try (var connection = DBCPDataSource.getConnection();
@@ -74,7 +73,6 @@ public class PlayerRepositoryFile {
                 playersName.add(allPlayersWithGivenId.getString(2));
             }
             for (String name : playersName) {
-                //playerDao.editTeamForGivenPlayer(name);
                 saveSinglePlayerInTheFile(new Player(name));
             }
         } catch (SQLException | IOException e) {

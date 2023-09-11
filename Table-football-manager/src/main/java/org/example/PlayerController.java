@@ -9,7 +9,6 @@ import static org.example.DataLoader.checkIfAlreadyExistsInTheFile;
 public class PlayerController {
     private static final Scanner sc = new Scanner(System.in);
     PlayerService playerService = new PlayerService();
-    TeamService teamService = new TeamService();
 
     void savePlayer(String name) throws IOException {
         while (checkIfAlreadyExistsInTheFile(name, DataLoader.PATH_TO_USERS_FILE)) {
