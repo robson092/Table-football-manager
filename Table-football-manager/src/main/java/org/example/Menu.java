@@ -86,6 +86,16 @@ public class Menu {
         gameController.gameRepositoryFile.saveSingleGameToFile(game);
     }
 
+    private void changeGameTime() throws IOException {
+//        sc.nextLine();
+//        System.out.println("Select game ID to change game time");
+//        String stringId = sc.nextLine();
+//        Long id = Long.valueOf(stringId);
+//        Game game = gameController.gameDao.get(id).get();
+//        game.setGameTime(Timestamp.valueOf(LocalDateTime.of(1999, 10, 9, 8, 7)));
+//        gameController.gameRepositoryFile.updateGameInFile(game);
+    }
+
     private void showAllPlayersWithTheirTeamsChoice() throws SQLException, IOException, InterruptedException {
         sc.nextLine();
         playerController.showPlayersWithTeams();
@@ -118,7 +128,7 @@ public class Menu {
                 5. Delete player
                 6. Delete team
                 7. Register game
-                8. Edit game
+                8. Change game time
                 9. Show all players
                 10. Show all teams
                 11. Show game scheduler
@@ -137,7 +147,7 @@ public class Menu {
             case 5 -> deletePlayerChoice();
             case 6 -> deleteTeamChoice();
             case 7 -> registerGame();
-            case 8 -> System.out.println("User chose to edit game");
+            case 8 -> changeGameTime();
             case 9 -> showAllPlayersWithTheirTeamsChoice();
             case 10 -> showAllTeamsChoice();
             case 11 -> System.out.println("User chose to show all scheduled games");
