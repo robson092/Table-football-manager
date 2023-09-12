@@ -21,9 +21,9 @@ public class GameDao implements Dao<Game> {
             ResultSet resultSet = selectSt.executeQuery();
             while (resultSet.next()) {
                 game = new Game(
-                        teamDao.get(resultSet.getInt(2)).get(),
                         teamDao.get(resultSet.getInt(3)).get(),
-                        resultSet.getTimestamp(4)
+                        teamDao.get(resultSet.getInt(4)).get(),
+                        resultSet.getTimestamp(5)
                 );
                 game.setGameStatus(GameStatus.valueOf(resultSet.getString(7)));
             }
@@ -43,8 +43,8 @@ public class GameDao implements Dao<Game> {
             ResultSet resultSet = selectSt.executeQuery();
             while (resultSet.next()) {
                 game = new Game(
-                        teamDao.get(resultSet.getInt(1)).get(),
-                        teamDao.get(resultSet.getInt(2)).get(),
+                        teamDao.get(resultSet.getInt(3)).get(),
+                        teamDao.get(resultSet.getInt(4)).get(),
                         resultSet.getTimestamp(5)
                 );
                 game.setGameStatus(GameStatus.valueOf(resultSet.getString(7)));
@@ -62,18 +62,19 @@ public class GameDao implements Dao<Game> {
         long secondTeamId = game.getSecondTeam().getId();
         String insertSql = """
                 INSERT INTO
-                games (team_1_id, team_2_id, game_time, game_status)
+                games (name, team_1_id, team_2_id, game_time, game_status)
                 VALUES
-                (?, ?, ?, ?)
+                (?, ?, ?, ?, ?)
                 """;
         int gameId = 0;
         try (var connection = DBCPDataSource.getConnection();
              var insertSt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             connection.setAutoCommit(false);
-            insertSt.setLong(1, firstTeamId);
-            insertSt.setLong(2, secondTeamId);
-            insertSt.setTimestamp(3, new Timestamp(game.getGameTime().getTime()));
-            insertSt.setString(4, game.getGameStatus().toString());
+            insertSt.setString(1, game.getName());
+            insertSt.setLong(2, firstTeamId);
+            insertSt.setLong(3, secondTeamId);
+            insertSt.setTimestamp(4, new Timestamp(game.getGameTime().getTime()));
+            insertSt.setString(5, game.getGameStatus().toString());
             int rowsAffected = insertSt.executeUpdate();
             connection.commit();
             if (rowsAffected == 1) {

@@ -5,6 +5,7 @@ import java.util.Date;
 
 public class Game {
     private long id;
+    private String name;
     private Team firstTeam;
     private Team secondTeam;
     private Timestamp gameTime;
@@ -17,6 +18,7 @@ public class Game {
     }
 
     public Game(Team firstTeam, Team secondTeam, Timestamp gameTime) {
+        this.name = firstTeam.getName() + " vs " + secondTeam.getName();
         this.firstTeam = firstTeam;
         this.secondTeam = secondTeam;
         this.gameTime = gameTime;
@@ -29,6 +31,14 @@ public class Game {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Team getFirstTeam() {
@@ -91,6 +101,7 @@ public class Game {
     public String toString() {
         return "Game{" +
                 "id=" + id +
+                ", name='" + name + '\'' +
                 ", firstTeam=" + firstTeam +
                 ", secondTeam=" + secondTeam +
                 ", gameTime=" + gameTime +

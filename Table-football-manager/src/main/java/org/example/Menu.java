@@ -2,12 +2,15 @@ package org.example;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Menu {
     private static final Scanner sc = new Scanner(System.in);
     private static final PlayerController playerController = new PlayerController();
     private static final TeamController teamController = new TeamController();
+    private static final GameController gameController = new GameController();
 
     private void createNewPlayerChoice() throws IOException, InterruptedException {
         sc.nextLine();
@@ -66,13 +69,23 @@ public class Menu {
         Thread.sleep(2000);
     }
 
-    private void registerGame() {
+    private void registerGame() throws IOException {
         sc.nextLine();
+        System.out.println("Chose game time:");
         String gameTime = sc.nextLine();
+        LocalDateTime localDateTime = LocalDateTime.of(2023, 9, 12, 19, 0);
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
         System.out.println("Choose first team:");
         String firstTeam = sc.nextLine();
+        Team team1 = teamController.teamService.getTeamByName(firstTeam);
         System.out.println("Choose second team:");
         String secondTeam = sc.nextLine();
+        Team team2 = teamController.teamService.getTeamByName(secondTeam);
+        Game game = new Game(team1, team2, timestamp);
+        gameController.gameDao.save(game);
+        gameController.gameRepositoryFile.saveSingleGameToFile(game);
+
+
     }
 
     private void showAllPlayersWithTheirTeamsChoice() throws SQLException, IOException, InterruptedException {

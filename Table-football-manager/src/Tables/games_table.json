@@ -1,0 +1,12 @@
+[
+  {
+    "result": null,
+    "secondTeamId": "5",
+    "gameTime": "2023-09-12 19:00:00.0",
+    "firstTeamGols": "0",
+    "gameStatus": "SCHEDULED",
+    "name": "Team1 vs Team2",
+    "secondTeamGols": "0",
+    "firstTeamId": "1"
+  }
+]

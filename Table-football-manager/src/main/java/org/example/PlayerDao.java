@@ -102,7 +102,7 @@ public class PlayerDao implements Dao<Player> {
         }
     }
 
-    int updatePlayerWithTeamIdInDB(String playerName, String teamName) throws IOException {
+    int updatePlayerWithTeamIdInDB(String playerName, String teamName) {
         int id = 0;
         String selectSql = "SELECT id FROM teams WHERE name = ?";
         String updateSql = "UPDATE players SET team_id = ? WHERE name = ?";
