@@ -84,8 +84,6 @@ public class Menu {
         Game game = new Game(team1, team2, timestamp);
         gameController.gameDao.save(game);
         gameController.gameRepositoryFile.saveSingleGameToFile(game);
-
-
     }
 
     private void showAllPlayersWithTheirTeamsChoice() throws SQLException, IOException, InterruptedException {

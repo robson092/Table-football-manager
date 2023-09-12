@@ -50,4 +50,18 @@ public class GameRepositoryFile {
             objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), games);
         }
     }
+
+    void deleteGameFromFile(Game game) throws IOException {
+        String gameName = game.getName();
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
+        List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
+        for (Map<String, String> singleGame : fileContent) {
+            if (singleGame.get("name").equalsIgnoreCase(gameName)) {
+                Set<String> gameMapKeys = singleGame.keySet();
+                singleGame.keySet().removeAll(gameMapKeys);
+            }
+        }
+        fileContent.removeIf(Map::isEmpty);
+        objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
+    }
 }
