@@ -64,4 +64,15 @@ public class GameRepositoryFile {
         fileContent.removeIf(Map::isEmpty);
         objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
     }
+
+    void updateGameInFile(Game game) throws IOException {
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
+        List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
+        for (Map<String, String> singleGame : fileContent) {
+            if (singleGame.get("name").equals(game.getName())) {
+                singleGame.replace("gameTime", String.valueOf(game.getGameTime()));
+                objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
+            }
+        }
+    }
 }

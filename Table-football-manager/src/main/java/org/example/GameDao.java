@@ -25,7 +25,6 @@ public class GameDao implements Dao<Game> {
                         teamDao.get(resultSet.getInt(4)).get(),
                         resultSet.getTimestamp(5)
                 );
-                game.setGameStatus(GameStatus.valueOf(resultSet.getString(7)));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
