@@ -16,28 +16,32 @@ import static org.example.DataLoader.getFileContent;
 
 public class PlayerRepositoryFile {
 
+    boolean checkIfPlayerTeamIsNull(Player player) {
+        return player.getTeamId() == null;
+    }
+
     void saveSinglePlayerInTheFile(Player player) throws IOException {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
-        Map<String, Object> newUser = new HashMap<>();
+        Map<String, String> newUser = new HashMap<>();
         if (Files.size(PATH_TO_USERS_FILE) != 0) {
-            List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
-            for (Map<String, Object> singleMapWithUser : fileContent) {
+            List<Map<String, String>> fileContent = getFileContent(PATH_TO_USERS_FILE);
+            for (Map<String, String> singleMapWithUser : fileContent) {
                 if (singleMapWithUser.get("name").equals(player.getName())) {
                     singleMapWithUser.replace("name", player.getName());
-                    singleMapWithUser.put("teamId", player.getTeamId());
+                    singleMapWithUser.put("teamId", checkIfPlayerTeamIsNull(player) ? null : String.valueOf(player.getTeamId()));
                     objectMapper.writeValue(PATH_TO_USERS_FILE.toFile(), fileContent);
                     return;
                 }
             }
             newUser.put("name", player.getName());
-            newUser.put("teamId", player.getTeamId());
+            newUser.put("teamId", checkIfPlayerTeamIsNull(player) ? null : String.valueOf(player.getTeamId()));
             fileContent.add(newUser);
             objectMapper.writeValue(PATH_TO_USERS_FILE.toFile(), fileContent);
 
         } else {
             newUser.put("name", player.getName());
-            newUser.put("teamId", player.getTeamId());
-            List<Map<String, Object>> listOfUsers = new ArrayList<>();
+            newUser.put("teamId", checkIfPlayerTeamIsNull(player) ? null : String.valueOf(player.getTeamId()));
+            List<Map<String, String>> listOfUsers = new ArrayList<>();
             listOfUsers.add(newUser);
             objectMapper.writeValue(PATH_TO_USERS_FILE.toFile(), listOfUsers);
         }
@@ -45,9 +49,9 @@ public class PlayerRepositoryFile {
 
     void deletePlayerFromFile(String playerName) throws IOException {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
-        List<Map<String, Object>> fileContent = getFileContent(PATH_TO_USERS_FILE);
-        for (Map<String, Object> singleMapWithUser : fileContent) {
-            if (singleMapWithUser.get("name").equals(playerName)) {
+        List<Map<String, String>> fileContent = getFileContent(PATH_TO_USERS_FILE);
+        for (Map<String, String> singleMapWithUser : fileContent) {
+            if (singleMapWithUser.get("name").equalsIgnoreCase(playerName)) {
                 singleMapWithUser.remove("name");
                 singleMapWithUser.remove("teamId");
             }

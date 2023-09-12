@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toSet;
 public class DataLoader {
     static final Path PATH_TO_TEAMS_FILE = Paths.get("src/Tables/teams_table.json");
     static final Path PATH_TO_USERS_FILE = Paths.get("src/Tables/players_table.json");
+    static final Path PATH_TO_GAMES_FILE = Paths.get("src/Tables/games_table.json");
     static final String PATH_TO_TABLES_DIRECTORY = "src/Tables/";
 
 
@@ -36,7 +37,7 @@ public class DataLoader {
         }
     }
 
-    static List<Map<String, Object>> getFileContent(Path path) throws IOException {
+    static List<Map<String, String>> getFileContent(Path path) throws IOException {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         if (Files.size(path) == 0) {
             return new ArrayList<>();
@@ -45,10 +46,11 @@ public class DataLoader {
         });
     }
 
-    static void loadAllPlayersFromFileToDB(List<Map<String, Object>> users) throws SQLException {
-        for (Map<String, Object> singleUser : users) {
-            String name = (String) singleUser.get("name");
-            Integer teamId = (Integer) singleUser.get("teamId");
+    static void loadAllPlayersFromFileToDB(List<Map<String, String>> users) {
+        for (Map<String, String> singleUser : users) {
+            String name = singleUser.get("name");
+            //Integer teamId = Integer.parseInt(singleUser.get("teamId"));
+            Integer teamId = singleUser.get("teamId") == null ? null : Integer.parseInt(singleUser.get("teamId"));
             try (Connection connection = DBCPDataSource.getConnection();
                  PreparedStatement statement = connection.prepareStatement("INSERT INTO players (name, team_id) VALUES ( ?, ? )")) {
                 connection.setAutoCommit(false);
@@ -62,9 +64,9 @@ public class DataLoader {
         }
     }
 
-    static void loadAllTeamsFromFileToDB(List<Map<String, Object>> teams) throws SQLException {
-        for (Map<String, Object> singleTeam : teams) {
-            String name = (String) singleTeam.get("name");
+    static void loadAllTeamsFromFileToDB(List<Map<String, String>> teams) {
+        for (Map<String, String> singleTeam : teams) {
+            String name = singleTeam.get("name");
             try (Connection connection = DBCPDataSource.getConnection();
                  PreparedStatement statement = connection.prepareStatement("INSERT INTO teams (name) VALUES ( ? )")) {
                 connection.setAutoCommit(false);
@@ -77,26 +79,29 @@ public class DataLoader {
         }
     }
 
-    static void loadFilesToDB() throws IOException, SQLException {
+    static void loadFilesToDB() throws IOException {
         Set<String> directoryContent = DataLoader.getDirectoryContent();
         for (String fileName : directoryContent) {
-            List<Map<String, Object>> fileContent = getFileContent(Path.of(PATH_TO_TABLES_DIRECTORY + fileName));
+            List<Map<String, String>> fileContent = getFileContent(Path.of(PATH_TO_TABLES_DIRECTORY + fileName));
             if (fileName.startsWith("players")) {
                 loadAllPlayersFromFileToDB(fileContent);
             }
             if (fileName.startsWith("teams")) {
                 loadAllTeamsFromFileToDB(fileContent);
             }
+            if (fileName.startsWith("games")) {
+
+            }
         }
     }
 
     static boolean checkIfAlreadyExistsInTheFile(String name, Path path) throws IOException {
-        List<Map<String, Object>> fileContent = DataLoader.getFileContent(path);
+        List<Map<String, String>> fileContent = DataLoader.getFileContent(path);
         if (fileContent.isEmpty()) {
             return false;
         } else {
-            for (Map<String, Object> singleName : fileContent) {
-                if (singleName.get("name").equals(name)) {
+            for (Map<String, String> singleName : fileContent) {
+                if (singleName.get("name").equalsIgnoreCase(name)) {
                     return true;
                 }
             }

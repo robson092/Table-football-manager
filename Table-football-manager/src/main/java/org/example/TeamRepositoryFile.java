@@ -17,8 +17,8 @@ public class TeamRepositoryFile {
     void saveSingleTeamInTheFile(Team team) throws IOException {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         if (Files.size(PATH_TO_TEAMS_FILE) != 0) {
-            List<Map<String, Object>> listOfTeams = getFileContent(PATH_TO_TEAMS_FILE);
-            Map<String, Object> newTeam = new HashMap<>();
+            List<Map<String, String>> listOfTeams = getFileContent(PATH_TO_TEAMS_FILE);
+            Map<String, String> newTeam = new HashMap<>();
             newTeam.put("name", team.getName());
             listOfTeams.add(newTeam);
             objectMapper.writeValue(PATH_TO_TEAMS_FILE.toFile(), listOfTeams);
@@ -33,9 +33,9 @@ public class TeamRepositoryFile {
 
     void deleteTeamFromFile(String teamName) throws IOException {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
-        List<Map<String, Object>> fileContent = getFileContent(PATH_TO_TEAMS_FILE);
-        for (Map<String, Object> singleMapWithTeam : fileContent) {
-            if (singleMapWithTeam.get("name").equals(teamName)) {
+        List<Map<String, String>> fileContent = getFileContent(PATH_TO_TEAMS_FILE);
+        for (Map<String, String> singleMapWithTeam : fileContent) {
+            if (singleMapWithTeam.get("name").equalsIgnoreCase(teamName)) {
                 singleMapWithTeam.remove("name");
             }
         }
