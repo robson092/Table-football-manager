@@ -1,6 +1,7 @@
 package org.example;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Game {
@@ -8,7 +9,7 @@ public class Game {
     private String name;
     private Team firstTeam;
     private Team secondTeam;
-    private Timestamp gameTime;
+    private LocalDateTime gameTime;
     private int firstTeamGols;
     private int secondTeamGols;
     private GameStatus gameStatus;
@@ -17,7 +18,7 @@ public class Game {
     public Game() {
     }
 
-    public Game(Team firstTeam, Team secondTeam, Timestamp gameTime) {
+    public Game(Team firstTeam, Team secondTeam, LocalDateTime gameTime) {
         this.name = firstTeam.getName() + " vs " + secondTeam.getName();
         this.firstTeam = firstTeam;
         this.secondTeam = secondTeam;
@@ -57,11 +58,11 @@ public class Game {
         this.secondTeam = secondTeam;
     }
 
-    public Date getGameTime() {
+    public LocalDateTime getGameTime() {
         return gameTime;
     }
 
-    public void setGameTime(Timestamp gameTime) {
+    public void setGameTime(LocalDateTime gameTime) {
         this.gameTime = gameTime;
     }
 

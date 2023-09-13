@@ -23,7 +23,7 @@ public class GameDao implements Dao<Game> {
                 game = new Game(
                         teamDao.get(resultSet.getInt(3)).get(),
                         teamDao.get(resultSet.getInt(4)).get(),
-                        resultSet.getTimestamp(5)
+                        resultSet.getTimestamp(5).toLocalDateTime()
                 );
             }
         } catch (SQLException e) {
@@ -44,9 +44,8 @@ public class GameDao implements Dao<Game> {
                 game = new Game(
                         teamDao.get(resultSet.getInt(3)).get(),
                         teamDao.get(resultSet.getInt(4)).get(),
-                        resultSet.getTimestamp(5)
+                        resultSet.getTimestamp(5).toLocalDateTime()
                 );
-                game.setGameStatus(GameStatus.valueOf(resultSet.getString(7)));
                 games.add(game);
             }
         } catch (SQLException e) {
@@ -72,7 +71,7 @@ public class GameDao implements Dao<Game> {
             insertSt.setString(1, game.getName());
             insertSt.setLong(2, firstTeamId);
             insertSt.setLong(3, secondTeamId);
-            insertSt.setTimestamp(4, new Timestamp(game.getGameTime().getTime()));
+            insertSt.setTimestamp(4, Timestamp.valueOf(game.getGameTime()));
             insertSt.setString(5, game.getGameStatus().toString());
             int rowsAffected = insertSt.executeUpdate();
             connection.commit();

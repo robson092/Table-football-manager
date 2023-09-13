@@ -71,22 +71,33 @@ public class Menu {
 
     private void registerGame() throws IOException {
         sc.nextLine();
-        System.out.println("Chose game time:");
-        String gameTime = sc.nextLine();
-        LocalDateTime localDateTime = LocalDateTime.of(2023, 9, 12, 19, 0);
-        Timestamp timestamp = Timestamp.valueOf(localDateTime);
         System.out.println("Choose first team:");
         String firstTeam = sc.nextLine();
         Team team1 = teamController.teamService.getTeamByName(firstTeam);
         System.out.println("Choose second team:");
         String secondTeam = sc.nextLine();
         Team team2 = teamController.teamService.getTeamByName(secondTeam);
-        Game game = new Game(team1, team2, timestamp);
-        gameController.gameDao.save(game);
-        gameController.gameRepositoryFile.saveSingleGameToFile(game);
+        //System.out.println("Chose game time (dd-mm-hh:mm)");
+        //String gameTime = sc.nextLine();
+        LocalDateTime localDateTime = LocalDateTime.of(2023, 9, 12, 19, 0);
+        gameController.gameService.createNewGame(localDateTime,team1,team2);
+
+
     }
 
-    private void changeGameTime() throws IOException {
+    private void changeGameTime() {
+        sc.nextLine();
+        System.out.println("Choose first team:");
+        String firstTeam = sc.nextLine();
+        Team team1 = teamController.teamService.getTeamByName(firstTeam);
+        System.out.println("Choose second team:");
+        String secondTeam = sc.nextLine();
+        Team team2 = teamController.teamService.getTeamByName(secondTeam);
+        System.out.println("Provide game time:");
+        String gameTime = sc.nextLine();
+        LocalDateTime localDateTime = gameController.gameService.extractDigitToCreateGameTime(gameTime);
+        boolean gameTimeHasProperDistanceFromPreviousGame = gameController.gameService.isGameTimeHasProperDistanceFromPreviousGame(localDateTime, team1, team2);
+        System.out.println(gameTimeHasProperDistanceFromPreviousGame);
 //        sc.nextLine();
 //        System.out.println("Select game ID to change game time");
 //        String stringId = sc.nextLine();
