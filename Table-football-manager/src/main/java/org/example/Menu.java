@@ -2,7 +2,6 @@ package org.example;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -69,20 +68,20 @@ public class Menu {
         Thread.sleep(2000);
     }
 
-    private void registerGame() throws IOException {
+    private void registerGameChoice() throws IOException {
         sc.nextLine();
         System.out.println("Choose first team:");
         String firstTeam = sc.nextLine();
-        Team team1 = teamController.teamService.getTeamByName(firstTeam);
+        Team validatedFirstTeam = teamController.validateIfTeamExists(firstTeam);
         System.out.println("Choose second team:");
         String secondTeam = sc.nextLine();
-        Team team2 = teamController.teamService.getTeamByName(secondTeam);
-        //System.out.println("Chose game time (dd-mm-hh:mm)");
-        //String gameTime = sc.nextLine();
-        LocalDateTime localDateTime = LocalDateTime.of(2023, 9, 12, 19, 0);
-        gameController.gameService.createNewGame(localDateTime,team1,team2);
-
-
+        Team validatedSecondTeam = teamController.validateIfTeamExists(secondTeam);
+        System.out.println("Chose game time (dd-mm-hh:mm)");
+        String gameTime = sc.nextLine();
+        String partiallyCheckedGameTime = gameController.checkIfProvidedTimeAreValid(gameTime);
+        String validatedGameTime = gameController.checkIfProposeTimeAreFarEnoughFromAnotherGameTime
+                (partiallyCheckedGameTime, validatedFirstTeam, validatedSecondTeam);
+        gameController.saveNewGameInFileAndDB(validatedFirstTeam, validatedSecondTeam, validatedGameTime);
     }
 
     private void changeGameTime() {
@@ -96,8 +95,8 @@ public class Menu {
         System.out.println("Provide game time:");
         String gameTime = sc.nextLine();
         LocalDateTime localDateTime = gameController.gameService.extractDigitToCreateGameTime(gameTime);
-        boolean gameTimeHasProperDistanceFromPreviousGame = gameController.gameService.isGameTimeHasProperDistanceFromPreviousGame(localDateTime, team1, team2);
-        System.out.println(gameTimeHasProperDistanceFromPreviousGame);
+        //boolean gameTimeHasProperDistanceFromPreviousGame = gameController.gameService.isGameTimeHasProperDistanceFromPreviousGame(localDateTime, team1, team2);
+        //System.out.println(gameTimeHasProperDistanceFromPreviousGame);
 //        sc.nextLine();
 //        System.out.println("Select game ID to change game time");
 //        String stringId = sc.nextLine();
@@ -157,7 +156,7 @@ public class Menu {
             case 4 -> removePlayerFromTeamChoice();
             case 5 -> deletePlayerChoice();
             case 6 -> deleteTeamChoice();
-            case 7 -> registerGame();
+            case 7 -> registerGameChoice();
             case 8 -> changeGameTime();
             case 9 -> showAllPlayersWithTheirTeamsChoice();
             case 10 -> showAllTeamsChoice();

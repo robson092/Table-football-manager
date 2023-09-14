@@ -28,6 +28,14 @@ public class TeamController {
         return name;
     }
 
+    Team validateIfTeamExists(String name) throws IOException {
+        while (!teamService.checkIfTeamExists(name)) {
+            System.out.println("Team does not exists. Please provide another team.");
+            name = sc.nextLine();
+        }
+        return teamService.getTeamByName(name);
+    }
+
     void deleteTeam(String name) throws IOException {
         String validatedTeam = validateTeam(name);
         teamService.delete(validatedTeam);

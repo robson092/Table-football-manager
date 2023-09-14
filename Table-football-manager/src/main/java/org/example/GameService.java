@@ -2,23 +2,22 @@ package org.example;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameService {
 
-    GameDao gameDao = new GameDao();
-    GameRepositoryFile gameRepositoryFile = new GameRepositoryFile();
+    private final GameDao gameDao = new GameDao();
+    private final GameRepositoryFile gameRepositoryFile = new GameRepositoryFile();
 
-    boolean isGameTimeInPast(LocalDateTime gameTime) {
+    boolean isGameTimeInPast(String input) {
+        LocalDateTime gameTime = extractDigitToCreateGameTime(input);
         return gameTime.isAfter(LocalDateTime.now());
     }
 
-    boolean isGameTimeHasProperDistanceFromPreviousGame(LocalDateTime proposeDateTime, Team firstTeam, Team secondTeam) {
+    boolean isGameTimeHasProperDistanceFromPreviousGame(String proposeDateTime, Team firstTeam, Team secondTeam) {
         LocalDateTime firstTeamGameTime = null;
         LocalDateTime secondTeamGameTime = null;
         long timeBetweenNewGameAndFirstTeamGame = 0;
@@ -35,12 +34,14 @@ public class GameService {
             }
         }
         if (firstTeamGameTime != null) {
-            timeBetweenNewGameAndFirstTeamGame = ChronoUnit.MINUTES.between(firstTeamGameTime, proposeDateTime);
+            timeBetweenNewGameAndFirstTeamGame = ChronoUnit.MINUTES.between
+                    (firstTeamGameTime, extractDigitToCreateGameTime(proposeDateTime));
         } else {
             timeBetweenNewGameAndFirstTeamGame = 31;
         }
         if (secondTeamGameTime != null) {
-            timeBetweenNewGameAndSecondTeamGame = ChronoUnit.MINUTES.between(secondTeamGameTime, proposeDateTime);
+            timeBetweenNewGameAndSecondTeamGame = ChronoUnit.MINUTES.between
+                    (secondTeamGameTime, extractDigitToCreateGameTime(proposeDateTime));
         } else {
             timeBetweenNewGameAndSecondTeamGame = 31;
         }
