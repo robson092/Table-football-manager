@@ -16,6 +16,10 @@ public class TeamService {
         teamDao.save(team);
     }
 
+    boolean checkIfTeamExists(String teamName) throws IOException {
+        return DataLoader.checkIfAlreadyExistsInTheFile(teamName, DataLoader.PATH_TO_TEAMS_FILE);
+    }
+
     boolean checkIfTeamIsFull(String teamName) {
         long teamId = 0;
         int teamMemberCount = 0;
