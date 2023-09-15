@@ -31,14 +31,6 @@ public class GameRepositoryFile {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         if (Files.size(PATH_TO_GAMES_FILE) != 0) {
             List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
-            for (Map<String, String> singleGame : fileContent) {
-                if (singleGame.get("name").equals(game.getName())) {
-                    singleGame.replace("name", game.getName());
-                    //newGame.put("firstTeamId", String.valueOf(game.getFirstTeam().getId()));
-                    objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
-                    return;
-                }
-            }
             Map<String, String> newGame = fillMapWithGameAttributes(game);
             fileContent.add(newGame);
             objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);

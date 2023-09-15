@@ -128,6 +128,28 @@ public class Menu {
         }
     }
 
+    private void showAllGamesChoice() throws SQLException, IOException, InterruptedException {
+        sc.nextLine();
+        gameController.getAllGames();
+        System.out.println("Type \"back\" to get back to menu.");
+        String backToMenuInput = sc.nextLine();
+        while (!hasBackToMenuChosen(backToMenuInput)) {
+            System.out.println("Type \"back\" to get back to menu.");
+            backToMenuInput = sc.nextLine();
+        }
+    }
+
+    private void showUpcomingGamesChoice() throws SQLException, IOException, InterruptedException {
+        sc.nextLine();
+        gameController.getUpcomingGames();
+        System.out.println("Type \"back\" to get back to menu.");
+        String backToMenuInput = sc.nextLine();
+        while (!hasBackToMenuChosen(backToMenuInput)) {
+            System.out.println("Type \"back\" to get back to menu.");
+            backToMenuInput = sc.nextLine();
+        }
+    }
+
     void getMenu() throws SQLException, IOException, InterruptedException {
         System.out.println("Available actions:");
         System.out.println("""
@@ -141,7 +163,8 @@ public class Menu {
                 8. Change game time
                 9. Show all players
                 10. Show all teams
-                11. Show game scheduler
+                11. Show all games
+                12. Show upcoming games
                 """);
         System.out.println("Choose one of above number!");
         while (!sc.hasNextInt()) {
@@ -160,7 +183,8 @@ public class Menu {
             case 8 -> changeGameTime();
             case 9 -> showAllPlayersWithTheirTeamsChoice();
             case 10 -> showAllTeamsChoice();
-            case 11 -> System.out.println("User chose to show all scheduled games");
+            case 11 -> showAllGamesChoice();
+            case 12 -> showUpcomingGamesChoice();
             default -> System.out.println("Incorrect number chosen! Please try again!");
         }
     }
