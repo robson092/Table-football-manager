@@ -2,7 +2,9 @@ package org.example;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,7 +47,7 @@ public class GameService {
         } else {
             timeBetweenNewGameAndSecondTeamGame = 31;
         }
-        return timeBetweenNewGameAndFirstTeamGame >= 30 && timeBetweenNewGameAndSecondTeamGame >= 30;
+        return Math.abs(timeBetweenNewGameAndFirstTeamGame) >= 30 && Math.abs(timeBetweenNewGameAndSecondTeamGame) >= 30;
     }
 
     boolean validateDateTimeFormat(String input) {
@@ -74,5 +76,20 @@ public class GameService {
         Game game = new Game(firstTeam, secondTeam, gameTime);
         gameDao.save(game);
         gameRepositoryFile.saveSingleGameToFile(game);
+    }
+
+    List<Game> getAllGamesSorted() {
+        List<Game> games = gameDao.getAllSortedByGameTime();
+        for (Game game : games) {
+            String result = game.getResult() == null ? "TBA" : game.getResult();
+            game.setResult(result);
+        }
+        return games;
+    }
+
+    List<Game> getUpcomingGamesSorted() {
+        List<Game> games = gameDao.getAllSortedByGameTime();
+        games.removeIf(game -> game.getGameTime().isBefore(LocalDateTime.now()));
+        return games;
     }
 }

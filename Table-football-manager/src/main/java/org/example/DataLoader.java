@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,6 @@ public class DataLoader {
     static void loadAllPlayersFromFileToDB(List<Map<String, String>> users) {
         for (Map<String, String> singleUser : users) {
             String name = singleUser.get("name");
-            //Integer teamId = Integer.parseInt(singleUser.get("teamId"));
             Integer teamId = singleUser.get("teamId") == null ? null : Integer.parseInt(singleUser.get("teamId"));
             try (Connection connection = DBCPDataSource.getConnection();
                  PreparedStatement statement = connection.prepareStatement("INSERT INTO players (name, team_id) VALUES ( ?, ? )")) {
@@ -79,6 +80,40 @@ public class DataLoader {
         }
     }
 
+    static void loadAllGamesFromFileToDB(List<Map<String, String>> games) {
+        for (Map<String, String> singleGame : games) {
+            String name = singleGame.get("name");
+            String firstTeamId = singleGame.get("firstTeamId");
+            String secondTeamId = singleGame.get("secondTeamId");
+            String gameTimeString = singleGame.get("gameTime");
+            LocalDateTime gameTime = LocalDateTime.parse(gameTimeString);
+            String firstTeamGols = singleGame.get("firstTeamGols");
+            String secondTeamGols = singleGame.get("secondTeamGols");
+            String gameStatus = singleGame.get("gameStatus");
+            String result = singleGame.get("result");
+            try (Connection connection = DBCPDataSource.getConnection();
+                 PreparedStatement statement = connection.prepareStatement("""
+                                         INSERT INTO games
+                                         (name, team_1_id, team_2_id, game_time, first_team_gols, second_team_gols, game_status, result)
+                                         VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )
+                         """)) {
+                connection.setAutoCommit(false);
+                statement.setString(1, name);
+                statement.setLong(2, Long.parseLong(firstTeamId));
+                statement.setLong(3, Long.parseLong(secondTeamId));
+                statement.setTimestamp(4, Timestamp.valueOf(gameTime));
+                statement.setInt(5, Integer.parseInt(firstTeamGols));
+                statement.setInt(6, Integer.parseInt(secondTeamGols));
+                statement.setString(7, gameStatus);
+                statement.setString(8, result);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     static void loadFilesToDB() throws IOException {
         Set<String> directoryContent = DataLoader.getDirectoryContent();
         for (String fileName : directoryContent) {
@@ -90,7 +125,7 @@ public class DataLoader {
                 loadAllTeamsFromFileToDB(fileContent);
             }
             if (fileName.startsWith("games")) {
-
+                loadAllGamesFromFileToDB(fileContent);
             }
         }
     }

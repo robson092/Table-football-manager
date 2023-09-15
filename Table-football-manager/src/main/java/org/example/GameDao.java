@@ -108,4 +108,27 @@ public class GameDao implements Dao<Game> {
             throw new RuntimeException(e);
         }
     }
+
+    List<Game> getAllSortedByGameTime() {
+        List<Game> games = new ArrayList<>();
+        Game game = null;
+        String selectSql = "SELECT * FROM games ORDER BY game_time";
+        try (var connection = DBCPDataSource.getConnection();
+             var selectSt = connection.prepareStatement(selectSql)) {
+            ResultSet resultSet = selectSt.executeQuery();
+            while (resultSet.next()) {
+                game = new Game(
+                        teamDao.get(resultSet.getInt(3)).get(),
+                        teamDao.get(resultSet.getInt(4)).get(),
+                        resultSet.getTimestamp(5).toLocalDateTime()
+                );
+                game.setId(resultSet.getInt(1));
+                game.setResult(resultSet.getString(9));
+                games.add(game);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return games;
+    }
 }

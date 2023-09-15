@@ -2,6 +2,8 @@ package org.example;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 
 public class GameController {
@@ -51,5 +53,26 @@ public class GameController {
     void saveNewGameInFileAndDB(Team firstTeam, Team secondTeam, String gameTimeInput) throws IOException {
         LocalDateTime gameTime = gameService.extractDigitToCreateGameTime(gameTimeInput);
         gameService.createNewGame(gameTime, firstTeam, secondTeam);
+    }
+
+    private void printGamesDetails(List<Game> games) {
+        for (Game game : games) {
+            LocalDateTime gameTime = game.getGameTime();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+            String formattedDate = gameTime.format(dateTimeFormatter);
+            System.out.println("GameId: " + game.getId() + "  " + "Participants: " + game.getName()
+                    + "  " + "Time: " + formattedDate + "  " + "Status: " + game.getGameStatus() + "  "
+                    + "Result: " + game.getResult());
+        }
+    }
+
+    void getAllGames() {
+        List<Game> games = gameService.getAllGamesSorted();
+        printGamesDetails(games);
+    }
+
+    void getUpcomingGames() {
+        List<Game> games = gameService.getUpcomingGamesSorted();
+        printGamesDetails(games);
     }
 }
