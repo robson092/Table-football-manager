@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,7 +74,8 @@ public class GameService {
 
     void createNewGame(LocalDateTime gameTime, Team firstTeam, Team secondTeam) throws IOException {
         Game game = new Game(firstTeam, secondTeam, gameTime);
-        gameDao.save(game);
+        long id = gameDao.save(game);
+        game.setId(id);
         gameRepositoryFile.saveSingleGameToFile(game);
     }
 
@@ -97,21 +99,66 @@ public class GameService {
         return games;
     }
 
-    boolean isGameExists(String name) {
+    List<Game> getAlreadyStartedGameSorted() {
+        List<Game> games = gameDao.getAllSortedByGameTime();
+        for (Game game : games) {
+            String result = game.getResult() == null ? "TBA" : game.getResult();
+            game.setResult(result);
+        }
+        games.removeIf(game -> game.getGameTime()
+                .isAfter(LocalDateTime.now()));
+        games.removeIf(game -> !game.getResult().equals("TBA"));
+        return games;
+    }
+
+    boolean isUpcomingGameExists(String name) {
         List<Game> games = getUpcomingGamesSorted();
         for (Game game : games) {
-            if (game.getName().equals(name)) {
+            if (game.getId() == Integer.parseInt(name)) {
                 return true;
             }
         }
         return false;
     }
 
+    boolean isStartedGameExist(String name) {
+        List<Game> games = getAlreadyStartedGameSorted();
+        for (Game game : games) {
+            if (game.getId() == Integer.parseInt(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     void changeGameTime(Game game, String gameTime) throws IOException {
         LocalDateTime correctFormatDate = extractDigitToCreateGameTime(gameTime);
         game.setGameTime(correctFormatDate);
-        gameRepositoryFile.updateGameInFile(game);
+        gameRepositoryFile.updateGameTimeInFile(game);
         gameDao.updateDate(game, Timestamp.valueOf(correctFormatDate));
+    }
+
+    boolean validateIfPositiveNumberEnter(int input) {
+        String stringInput = String.valueOf(input);
+        String regex = "^\\d*[1-9]\\d*$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(stringInput);
+        return matcher.matches();
+    }
+
+    void submitScore(Game game, int firstTeamGols, int secondTeamGols) throws IOException {
+        game.setFirstTeamGols(firstTeamGols);
+        game.setSecondTeamGols(secondTeamGols);
+        if (game.getFirstTeamGols() > game.getSecondTeamGols()) {
+            game.setResult(game.getFirstTeam().getName() + " WON");
+        } else if (game.getSecondTeamGols() > game.getFirstTeamGols()) {
+            game.setResult(game.getSecondTeam().getName() + " WON");
+        } else {
+            game.setResult("DRAW");
+        }
+        gameRepositoryFile.updateGameScoreInFile(game);
+        gameRepositoryFile.updateGameResultInFile(game);
+        gameDao.updateScore(game, new int[] {firstTeamGols, secondTeamGols});
+        gameDao.update(game, new String[] {"result", game.getResult()});
     }
 }

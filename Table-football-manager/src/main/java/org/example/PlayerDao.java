@@ -50,7 +50,7 @@ public class PlayerDao implements Dao<Player> {
     }
 
     @Override
-    public void save(Player player) {
+    public long save(Player player) {
         String sql = "INSERT INTO players (name, team_id) VALUES ( ?, ?)";
         int userId = 0;
         try (var connection = DBCPDataSource.getConnection();
@@ -69,6 +69,7 @@ public class PlayerDao implements Dao<Player> {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return userId;
     }
 
     @Override

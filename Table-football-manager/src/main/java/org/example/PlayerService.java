@@ -55,7 +55,7 @@ public class PlayerService {
         return players.stream()
                 .filter(player -> player.getName().equals(name))
                 .reduce((player, player2) -> player)
-                .get();
+                .orElse(null);
     }
 
     Map<String, String> getPlayersWithTeams() {

@@ -47,7 +47,7 @@ public class TeamDao implements Dao<Team> {
     }
 
     @Override
-    public void save(Team team) {
+    public long save(Team team) {
         String sql = "INSERT INTO teams (name) VALUES ( ? )";
         int teamId = 0;
         try (var connection = DBCPDataSource.getConnection();
@@ -61,10 +61,10 @@ public class TeamDao implements Dao<Team> {
                 generatedKeys.next();
                 teamId = generatedKeys.getInt(1);
             }
-            //team.setId(teamId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return teamId;
     }
 
     @Override

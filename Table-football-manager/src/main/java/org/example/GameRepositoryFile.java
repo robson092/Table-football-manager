@@ -16,6 +16,7 @@ public class GameRepositoryFile {
 
     private Map<String, String> fillMapWithGameAttributes(Game game) {
         Map<String, String> newGame = new HashMap<>();
+        newGame.put("id", String.valueOf(game.getId()));
         newGame.put("name", game.getName());
         newGame.put("firstTeamId", String.valueOf(game.getFirstTeam().getId()));
         newGame.put("secondTeamId", String.valueOf(game.getSecondTeam().getId()));
@@ -57,12 +58,35 @@ public class GameRepositoryFile {
         objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
     }
 
-    void updateGameInFile(Game game) throws IOException {
+    void updateGameTimeInFile(Game game) throws IOException {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
         for (Map<String, String> singleGame : fileContent) {
             if (singleGame.get("name").equals(game.getName())) {
                 singleGame.replace("gameTime", String.valueOf(game.getGameTime()));
+                objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
+            }
+        }
+    }
+
+    void updateGameScoreInFile(Game game) throws IOException {
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
+        List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
+        for (Map<String, String> singleGame : fileContent) {
+            if (singleGame.get("id").equals(String.valueOf(game.getId()))) {
+                singleGame.replace("firstTeamGols", String.valueOf(game.getFirstTeamGols()));
+                singleGame.replace("secondTeamGols", String.valueOf(game.getSecondTeamGols()));
+                objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
+            }
+        }
+    }
+
+    void updateGameResultInFile(Game game) throws IOException {
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
+        List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
+        for (Map<String, String> singleGame : fileContent) {
+            if (singleGame.get("id").equals(String.valueOf(game.getId()))) {
+                singleGame.replace("result", String.valueOf(game.getResult()));
                 objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
             }
         }

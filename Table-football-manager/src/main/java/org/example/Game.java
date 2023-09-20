@@ -1,8 +1,6 @@
 package org.example;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class Game {
     private long id;
@@ -30,7 +28,7 @@ public class Game {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
