@@ -62,7 +62,7 @@ public class GameRepositoryFile {
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
         for (Map<String, String> singleGame : fileContent) {
-            if (singleGame.get("name").equals(game.getName())) {
+            if (singleGame.get("id").equals(String.valueOf(game.getId()))) {
                 singleGame.replace("gameTime", String.valueOf(game.getGameTime()));
                 objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
             }
@@ -87,6 +87,17 @@ public class GameRepositoryFile {
         for (Map<String, String> singleGame : fileContent) {
             if (singleGame.get("id").equals(String.valueOf(game.getId()))) {
                 singleGame.replace("result", String.valueOf(game.getResult()));
+                objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
+            }
+        }
+    }
+
+    void updateGameStatusInFile(Game game) throws IOException {
+        ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
+        List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
+        for (Map<String, String> singleGame : fileContent) {
+            if (singleGame.get("id").equals(String.valueOf(game.getId()))) {
+                singleGame.replace("gameStatus", String.valueOf(game.getGameStatus()));
                 objectMapper.writeValue(PATH_TO_GAMES_FILE.toFile(), fileContent);
             }
         }
