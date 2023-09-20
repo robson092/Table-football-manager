@@ -2,7 +2,6 @@ package org.example;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class Menu {
@@ -84,26 +83,18 @@ public class Menu {
         gameController.saveNewGameInFileAndDB(validatedFirstTeam, validatedSecondTeam, validatedGameTime);
     }
 
-    private void changeGameTime() {
+    private void changeGameTime() throws IOException, InterruptedException {
         sc.nextLine();
-        System.out.println("Choose first team:");
-        String firstTeam = sc.nextLine();
-        Team team1 = teamController.teamService.getTeamByName(firstTeam);
-        System.out.println("Choose second team:");
-        String secondTeam = sc.nextLine();
-        Team team2 = teamController.teamService.getTeamByName(secondTeam);
-        System.out.println("Provide game time:");
-        String gameTime = sc.nextLine();
-        LocalDateTime localDateTime = gameController.gameService.extractDigitToCreateGameTime(gameTime);
-        //boolean gameTimeHasProperDistanceFromPreviousGame = gameController.gameService.isGameTimeHasProperDistanceFromPreviousGame(localDateTime, team1, team2);
-        //System.out.println(gameTimeHasProperDistanceFromPreviousGame);
-//        sc.nextLine();
-//        System.out.println("Select game ID to change game time");
-//        String stringId = sc.nextLine();
-//        Long id = Long.valueOf(stringId);
-//        Game game = gameController.gameDao.get(id).get();
-//        game.setGameTime(Timestamp.valueOf(LocalDateTime.of(1999, 10, 9, 8, 7)));
-//        gameController.gameRepositoryFile.updateGameInFile(game);
+        System.out.println("Select game from below list to change game date. Please enter name:");
+        gameController.getUpcomingGames();
+        String gameName = sc.nextLine();
+        String validatedGameName = gameController.checkIfGameExists(gameName);
+        System.out.println("Please provide new game time: (format DAY-MONTH-HOUR:MINUTES)");
+        String proposedGameTime = sc.nextLine();
+        String validatedTime = gameController.validateGameTime(proposedGameTime, validatedGameName);
+        gameController.changeTime(validatedGameName, validatedTime);
+        System.out.println("Game time changed!");
+        Thread.sleep(2000);
     }
 
     private void showAllPlayersWithTheirTeamsChoice() throws SQLException, IOException, InterruptedException {

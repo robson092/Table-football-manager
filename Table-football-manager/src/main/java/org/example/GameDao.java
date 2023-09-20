@@ -87,10 +87,22 @@ public class GameDao implements Dao<Game> {
 
     @Override
     public void update(Game game, String[] params) {
-        String updateSql = "UPDATE games SET" + params[0] + " = ? WHERE id = ?";
+        String updateSql = "UPDATE games SET " + params[0] + " = ? WHERE id = ?";
         try (var con = DBCPDataSource.getConnection();
              var updateSt = con.prepareStatement(updateSql)) {
             updateSt.setObject(1, params[1]);
+            updateSt.setLong(2, game.getId());
+            updateSt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateDate(Game game, Timestamp date) {
+        String updateSql = "UPDATE games SET game_time = ? WHERE id = ?";
+        try (var con = DBCPDataSource.getConnection();
+             var updateSt = con.prepareStatement(updateSql)) {
+            updateSt.setTimestamp(1, date);
             updateSt.setLong(2, game.getId());
             updateSt.executeUpdate();
         } catch (SQLException e) {

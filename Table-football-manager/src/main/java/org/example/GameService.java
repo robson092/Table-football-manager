@@ -1,10 +1,9 @@
 package org.example;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -89,7 +88,30 @@ public class GameService {
 
     List<Game> getUpcomingGamesSorted() {
         List<Game> games = gameDao.getAllSortedByGameTime();
-        games.removeIf(game -> game.getGameTime().isBefore(LocalDateTime.now()));
+        for (Game game : games) {
+            String result = game.getResult() == null ? "TBA" : game.getResult();
+            game.setResult(result);
+        }
+        games.removeIf(game -> game.getGameTime()
+                .isBefore(LocalDateTime.now()));
         return games;
+    }
+
+    boolean isGameExists(String name) {
+        List<Game> games = getUpcomingGamesSorted();
+        for (Game game : games) {
+            if (game.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    void changeGameTime(Game game, String gameTime) throws IOException {
+        LocalDateTime correctFormatDate = extractDigitToCreateGameTime(gameTime);
+        game.setGameTime(correctFormatDate);
+        gameRepositoryFile.updateGameInFile(game);
+        gameDao.updateDate(game, Timestamp.valueOf(correctFormatDate));
     }
 }
