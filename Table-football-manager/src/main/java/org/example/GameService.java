@@ -134,8 +134,11 @@ public class GameService {
     void changeGameTime(Game game, String gameTime) throws IOException {
         LocalDateTime correctFormatDate = extractDigitToCreateGameTime(gameTime);
         game.setGameTime(correctFormatDate);
+        game.setResult("TBA");
         gameRepositoryFile.updateGameTimeInFile(game);
+        gameRepositoryFile.updateGameResultInFile(game);
         gameDao.updateDate(game, Timestamp.valueOf(correctFormatDate));
+        gameDao.update(game, new String[] {"result", null});
     }
 
     boolean validateIfPositiveNumberEnter(int input) {
@@ -149,6 +152,7 @@ public class GameService {
     void submitScore(Game game, int firstTeamGols, int secondTeamGols) throws IOException {
         game.setFirstTeamGols(firstTeamGols);
         game.setSecondTeamGols(secondTeamGols);
+        game.setGameStatus(GameStatus.FINISHED);
         if (game.getFirstTeamGols() > game.getSecondTeamGols()) {
             game.setResult(game.getFirstTeam().getName() + " WON");
         } else if (game.getSecondTeamGols() > game.getFirstTeamGols()) {
@@ -158,7 +162,9 @@ public class GameService {
         }
         gameRepositoryFile.updateGameScoreInFile(game);
         gameRepositoryFile.updateGameResultInFile(game);
+        gameRepositoryFile.updateGameStatusInFile(game);
         gameDao.updateScore(game, new int[] {firstTeamGols, secondTeamGols});
         gameDao.update(game, new String[] {"result", game.getResult()});
+        gameDao.update(game, new String[] {"game_status", String.valueOf(game.getGameStatus())});
     }
 }
