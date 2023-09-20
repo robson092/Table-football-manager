@@ -85,14 +85,14 @@ public class Menu {
 
     private void changeGameTime() throws IOException, InterruptedException {
         sc.nextLine();
-        System.out.println("Select game from below list to change game date. Please enter name:");
+        System.out.println("Select game from below list to change game date. Please enter id:");
         gameController.getUpcomingGames();
-        String gameName = sc.nextLine();
-        String validatedGameName = gameController.checkIfGameExists(gameName);
+        String gameId = sc.nextLine();
+        String validatedGameId = gameController.checkIfUpcomingGameExists(gameId);
         System.out.println("Please provide new game time: (format DAY-MONTH-HOUR:MINUTES)");
         String proposedGameTime = sc.nextLine();
-        String validatedTime = gameController.validateGameTime(proposedGameTime, validatedGameName);
-        gameController.changeTime(validatedGameName, validatedTime);
+        String validatedTime = gameController.validateGameTime(proposedGameTime, validatedGameId);
+        gameController.changeTime(validatedGameId, validatedTime);
         System.out.println("Game time changed!");
         Thread.sleep(2000);
     }
@@ -141,6 +141,21 @@ public class Menu {
         }
     }
 
+    private void submitGameScore() throws IOException {
+        sc.nextLine();
+        System.out.println("Provide id of game from below list which you would like to submit score:");
+        gameController.getAlreadyStartedGames();
+        String gameId = sc.nextLine();
+        String validatedGameId = gameController.checkIfStartedGameExists(gameId);
+        System.out.println("Provide first team gols (type 0 if there were no gols):");
+        String firstTeamGols = sc.nextLine();
+        String validatedFirstTeamGols = gameController.validateIfCorrectScoreEnter(firstTeamGols);
+        System.out.println("Provide second team gols (type 0 if there were no gols):");
+        String secondTeamGols = sc.nextLine();
+        String validatedSecondTeamGols = gameController.validateIfCorrectScoreEnter(secondTeamGols);
+        gameController.submitGameScore(validatedGameId, validatedFirstTeamGols, validatedSecondTeamGols);
+    }
+
     void getMenu() throws SQLException, IOException, InterruptedException {
         System.out.println("Available actions:");
         System.out.println("""
@@ -156,6 +171,7 @@ public class Menu {
                 10. Show all teams
                 11. Show all games
                 12. Show upcoming games
+                13. Submit game score
                 """);
         System.out.println("Choose one of above number!");
         while (!sc.hasNextInt()) {
@@ -176,6 +192,7 @@ public class Menu {
             case 10 -> showAllTeamsChoice();
             case 11 -> showAllGamesChoice();
             case 12 -> showUpcomingGamesChoice();
+            case 13 -> submitGameScore();
             default -> System.out.println("Incorrect number chosen! Please try again!");
         }
     }

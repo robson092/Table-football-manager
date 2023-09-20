@@ -55,7 +55,7 @@ public class GameDao implements Dao<Game> {
     }
 
     @Override
-    public void save(Game game) {
+    public long save(Game game) {
         long firstTeamId = game.getFirstTeam().getId();
         long secondTeamId = game.getSecondTeam().getId();
         String insertSql = """
@@ -64,7 +64,7 @@ public class GameDao implements Dao<Game> {
                 VALUES
                 (?, ?, ?, ?, ?)
                 """;
-        int gameId = 0;
+        long gameId = 0;
         try (var connection = DBCPDataSource.getConnection();
              var insertSt = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             connection.setAutoCommit(false);
@@ -83,6 +83,7 @@ public class GameDao implements Dao<Game> {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return gameId;
     }
 
     @Override
@@ -91,18 +92,6 @@ public class GameDao implements Dao<Game> {
         try (var con = DBCPDataSource.getConnection();
              var updateSt = con.prepareStatement(updateSql)) {
             updateSt.setObject(1, params[1]);
-            updateSt.setLong(2, game.getId());
-            updateSt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void updateDate(Game game, Timestamp date) {
-        String updateSql = "UPDATE games SET game_time = ? WHERE id = ?";
-        try (var con = DBCPDataSource.getConnection();
-             var updateSt = con.prepareStatement(updateSql)) {
-            updateSt.setTimestamp(1, date);
             updateSt.setLong(2, game.getId());
             updateSt.executeUpdate();
         } catch (SQLException e) {
@@ -142,5 +131,34 @@ public class GameDao implements Dao<Game> {
             throw new RuntimeException(e);
         }
         return games;
+    }
+
+    public void updateDate(Game game, Timestamp date) {
+        String updateSql = "UPDATE games SET game_time = ? WHERE id = ?";
+        try (var con = DBCPDataSource.getConnection();
+             var updateSt = con.prepareStatement(updateSql)) {
+            updateSt.setTimestamp(1, date);
+            updateSt.setLong(2, game.getId());
+            updateSt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateScore(Game game, int[] params) {
+        String updateFirstTeamGolsSql = "UPDATE games SET first_team_gols = ? WHERE id = ?";
+        String updateSecondTeamGolsSql = "UPDATE games SET second_team_gols = ? WHERE id = ?";
+        try (var con = DBCPDataSource.getConnection();
+             var updateFirstTeamGolsSt = con.prepareStatement(updateFirstTeamGolsSql);
+             var updateSecondTeamGolsSt = con.prepareStatement(updateSecondTeamGolsSql)) {
+            updateFirstTeamGolsSt.setInt(1, params[0]);
+            updateFirstTeamGolsSt.setLong(2, game.getId());
+            updateSecondTeamGolsSt.setInt(1, params[1]);
+            updateSecondTeamGolsSt.setLong(2, game.getId());
+            updateFirstTeamGolsSt.executeUpdate();
+            updateSecondTeamGolsSt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

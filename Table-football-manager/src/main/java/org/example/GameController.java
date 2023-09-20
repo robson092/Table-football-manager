@@ -77,45 +77,79 @@ public class GameController {
         }
     }
 
+    void getAlreadyStartedGames() {
+        List<Game> games = gameService.getAlreadyStartedGameSorted();
+        if (checkIfAnyGameScheduled(games)) {
+            printGamesDetails(games);
+        }
+    }
+
     boolean checkIfAnyGameScheduled(List<Game> games) {
         if (games.isEmpty()) {
-            System.out.println("There is no games scheduled.");
+            System.out.println("There is no games to show.");
             return false;
         }
         return true;
     }
 
-    String checkIfGameExists(String input) {
+    String checkIfUpcomingGameExists(String input) {
         String gameName = input;
-        while (!gameService.isGameExists(gameName)) {
-            System.out.println("Incorrect name provided. Please choose from game list:");
+        while (!gameService.isUpcomingGameExists(gameName)) {
+            System.out.println("Incorrect id provided. Please choose from game list:");
             gameName = sc.nextLine();
         }
         return gameName;
     }
 
-    String validateGameTime(String proposedGameTime, String gameName) {
+    String checkIfStartedGameExists(String input) {
+        String id = input;
+        while (!gameService.isStartedGameExist(id)) {
+            System.out.println("Incorrect name provided. Please choose from game list:");
+            id = sc.nextLine();
+        }
+        return id;
+    }
+
+    String validateGameTime(String proposedGameTime, String gameId) {
         String gameTime = checkIfProvidedTimeAreValid(proposedGameTime);
         List<Game> games = gameService.getUpcomingGamesSorted();
         Team firstTeam = games.stream()
-                .filter(game -> game.getName().equals(gameName))
+                .filter(game -> game.getId() == Integer.parseInt(gameId))
                 .map(Game::getFirstTeam)
                 .findFirst()
                 .orElse(null);
         Team secondTeam = games.stream()
-                .filter(game -> game.getName().equals(gameName))
+                .filter(game -> game.getId() == Integer.parseInt(gameId))
                 .map(Game::getSecondTeam)
                 .findFirst()
                 .orElse(null);
         return checkIfProposeTimeAreFarEnoughFromAnotherGameTime(gameTime, firstTeam, secondTeam);
     }
 
-    void changeTime(String gameName, String gameTime) throws IOException {
+    void changeTime(String gameId, String gameTime) throws IOException {
         List<Game> games = gameService.getAllGamesSorted();
         Game game = games.stream()
-                .filter(game1 -> game1.getName().equals(gameName))
+                .filter(game1 -> game1.getId() == Integer.parseInt(gameId))
                 .findFirst()
                 .orElse(null);
         gameService.changeGameTime(game, gameTime);
+    }
+
+    String validateIfCorrectScoreEnter(String input) {
+        int intInput = Integer.parseInt(input);
+        while (!gameService.validateIfPositiveNumberEnter(intInput)) {
+            System.out.println("Please provide positive number!");
+            intInput = Integer.parseInt(sc.nextLine());
+        }
+        return String.valueOf(intInput);
+    }
+
+    void submitGameScore(String gameId, String firstTeamGols, String secondTeamGols) throws IOException {
+        List<Game> games = gameService.getAllGamesSorted();
+        Game game = games.stream()
+                .filter(game1 -> game1.getId() == Integer.parseInt(gameId))
+                .findFirst()
+                .orElse(null);
+        gameService.submitScore(game, Integer.parseInt(firstTeamGols), Integer.parseInt(secondTeamGols));
     }
 }

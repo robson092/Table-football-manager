@@ -7,6 +7,7 @@ public class Player {
     private long id;
     private String name;
     private Integer teamId;
+    private int gols;
 
     public Player() {
     }
@@ -24,6 +25,13 @@ public class Player {
         this.id = id;
         this.name = name;
         this.teamId = teamId;
+    }
+
+    public Player(long id, String name, Integer teamId, int gols) {
+        this.id = id;
+        this.name = name;
+        this.teamId = teamId;
+        this.gols = gols;
     }
 
     public long getId() {
@@ -47,11 +55,21 @@ public class Player {
         this.teamId = teamId;
     }
 
+    public int getGols() {
+        return gols;
+    }
+
+    public void setGols(int gols) {
+        this.gols = gols;
+    }
+
     @Override
     public String toString() {
-        return "User{" +
-                "name='" + name + '\'' +
-                ", team='" + teamId + '\'' +
+        return "Player{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", teamId=" + teamId +
+                ", gols=" + gols +
                 '}';
     }
 }
