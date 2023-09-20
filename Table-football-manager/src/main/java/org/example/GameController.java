@@ -9,8 +9,7 @@ import java.util.Scanner;
 public class GameController {
 
     private static final Scanner sc = new Scanner(System.in);
-    GameService gameService = new GameService();
-    TeamService teamService = new TeamService();
+    private final GameService gameService = new GameService();
 
     private String validateIfProperGameTimeFormatProvided(String input) {
         while (!gameService.validateDateTimeFormat(input)) {
@@ -60,7 +59,7 @@ public class GameController {
             LocalDateTime gameTime = game.getGameTime();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
             String formattedDate = gameTime.format(dateTimeFormatter);
-            System.out.println("GameId: " + game.getId() + "  " + "Participants: " + game.getName()
+            System.out.println("GameId: " + game.getId() + "  " + "Participants (name): " + game.getName()
                     + "  " + "Time: " + formattedDate + "  " + "Status: " + game.getGameStatus() + "  "
                     + "Result: " + game.getResult());
         }
@@ -73,6 +72,50 @@ public class GameController {
 
     void getUpcomingGames() {
         List<Game> games = gameService.getUpcomingGamesSorted();
-        printGamesDetails(games);
+        if (checkIfAnyGameScheduled(games)) {
+            printGamesDetails(games);
+        }
+    }
+
+    boolean checkIfAnyGameScheduled(List<Game> games) {
+        if (games.isEmpty()) {
+            System.out.println("There is no games scheduled.");
+            return false;
+        }
+        return true;
+    }
+
+    String checkIfGameExists(String input) {
+        String gameName = input;
+        while (!gameService.isGameExists(gameName)) {
+            System.out.println("Incorrect name provided. Please choose from game list:");
+            gameName = sc.nextLine();
+        }
+        return gameName;
+    }
+
+    String validateGameTime(String proposedGameTime, String gameName) {
+        String gameTime = checkIfProvidedTimeAreValid(proposedGameTime);
+        List<Game> games = gameService.getUpcomingGamesSorted();
+        Team firstTeam = games.stream()
+                .filter(game -> game.getName().equals(gameName))
+                .map(Game::getFirstTeam)
+                .findFirst()
+                .orElse(null);
+        Team secondTeam = games.stream()
+                .filter(game -> game.getName().equals(gameName))
+                .map(Game::getSecondTeam)
+                .findFirst()
+                .orElse(null);
+        return checkIfProposeTimeAreFarEnoughFromAnotherGameTime(gameTime, firstTeam, secondTeam);
+    }
+
+    void changeTime(String gameName, String gameTime) throws IOException {
+        List<Game> games = gameService.getAllGamesSorted();
+        Game game = games.stream()
+                .filter(game1 -> game1.getName().equals(gameName))
+                .findFirst()
+                .orElse(null);
+        gameService.changeGameTime(game, gameTime);
     }
 }
