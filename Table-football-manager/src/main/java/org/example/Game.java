@@ -24,6 +24,15 @@ public class Game {
         this.gameStatus = GameStatus.SCHEDULED;
     }
 
+    public Game(long id, Team firstTeam, Team secondTeam, LocalDateTime gameTime) {
+        this.id = id;
+        this.name = firstTeam.getName() + " vs " + secondTeam.getName();
+        this.firstTeam = firstTeam;
+        this.secondTeam = secondTeam;
+        this.gameTime = gameTime;
+        this.gameStatus = GameStatus.SCHEDULED;
+    }
+
     public long getId() {
         return id;
     }

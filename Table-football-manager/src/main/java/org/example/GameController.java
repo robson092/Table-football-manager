@@ -65,7 +65,7 @@ public class GameController {
         }
     }
 
-    void getAllGames() {
+    void getAllGames() throws IOException {
         List<Game> games = gameService.getAllGamesSorted();
         printGamesDetails(games);
     }
@@ -77,7 +77,7 @@ public class GameController {
         }
     }
 
-    void getAlreadyStartedGames() {
+    void getAlreadyStartedGames() throws IOException {
         List<Game> games = gameService.getAlreadyStartedGameSorted();
         if (checkIfAnyGameScheduled(games)) {
             printGamesDetails(games);
@@ -101,7 +101,7 @@ public class GameController {
         return gameName;
     }
 
-    String checkIfStartedGameExists(String input) {
+    String checkIfStartedGameExists(String input) throws IOException {
         String id = input;
         while (!gameService.isStartedGameExist(id)) {
             System.out.println("Incorrect name provided. Please choose from game list:");

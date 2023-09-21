@@ -9,8 +9,8 @@ import static org.example.DataLoader.checkIfAlreadyExistsInTheFile;
 public class TeamController {
     private static final Scanner sc = new Scanner(System.in);
 
-    TeamDao teamDao = new TeamDao();
-    TeamService teamService = new TeamService();
+    private final TeamDao teamDao = new TeamDao();
+    private final TeamService teamService = new TeamService();
 
     void createTeam(String name) throws IOException {
         while (checkIfAlreadyExistsInTheFile(name, DataLoader.PATH_TO_TEAMS_FILE)) {
@@ -20,7 +20,7 @@ public class TeamController {
         teamService.createTeam(name);
     }
 
-    String validateTeam(String name) throws IOException {
+    String validateTeam(String name) {
         while (teamService.checkIfTeamIsFull(name)) {
             System.out.println("Incorrect team provided! Please provide another team.");
             name = sc.nextLine();

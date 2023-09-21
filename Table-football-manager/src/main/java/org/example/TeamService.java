@@ -53,6 +53,6 @@ public class TeamService {
         return teams.stream()
                 .filter(player -> player.getName().equals(name))
                 .reduce((player, player2) -> player)
-                .get();
+                .orElse(null);
     }
 }

@@ -42,6 +42,7 @@ public class GameDao implements Dao<Game> {
             ResultSet resultSet = selectSt.executeQuery();
             while (resultSet.next()) {
                 game = new Game(
+                        resultSet.getInt(1),
                         teamDao.get(resultSet.getInt(3)).get(),
                         teamDao.get(resultSet.getInt(4)).get(),
                         resultSet.getTimestamp(5).toLocalDateTime()
@@ -119,12 +120,12 @@ public class GameDao implements Dao<Game> {
             ResultSet resultSet = selectSt.executeQuery();
             while (resultSet.next()) {
                 game = new Game(
+                        resultSet.getInt(1),
                         teamDao.get(resultSet.getInt(3)).get(),
                         teamDao.get(resultSet.getInt(4)).get(),
                         resultSet.getTimestamp(5).toLocalDateTime()
                 );
-                game.setId(resultSet.getInt(1));
-                game.setResult(resultSet.getString(9));
+                game.setGameStatus(GameStatus.valueOf(resultSet.getString(8)));
                 games.add(game);
             }
         } catch (SQLException e) {
