@@ -1,6 +1,7 @@
 package org.example;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -70,24 +71,38 @@ public class GameController {
         printGamesDetails(games);
     }
 
-    void getUpcomingGames() {
+    void getUpcomingGames() throws SQLException, IOException, InterruptedException {
         List<Game> games = gameService.getUpcomingGamesSorted();
         if (checkIfAnyGameScheduled(games)) {
             printGamesDetails(games);
+        } else {
+            String backToMenuInput = sc.nextLine();
+            while (!MenuService.hasBackToMenuChosen(backToMenuInput)) {
+                System.out.println("Type \"back\" to get back to menu.");
+                backToMenuInput = sc.nextLine();
+            }
         }
     }
 
-    void getAlreadyStartedGames() throws IOException {
+    void getAlreadyStartedGames() throws IOException, SQLException, InterruptedException {
         List<Game> games = gameService.getAlreadyStartedGameSorted();
         if (checkIfAnyGameScheduled(games)) {
             printGamesDetails(games);
+        } else {
+            String backToMenuInput = sc.nextLine();
+            while (!MenuService.hasBackToMenuChosen(backToMenuInput)) {
+                System.out.println("Type \"back\" to get back to menu.");
+                backToMenuInput = sc.nextLine();
+            }
         }
     }
 
     boolean checkIfAnyGameScheduled(List<Game> games) {
         if (games.isEmpty()) {
             System.out.println("There is no games to show.");
+            System.out.println("Type \"back\" to get back to menu.");
             return false;
+
         }
         return true;
     }
@@ -151,5 +166,9 @@ public class GameController {
                 .findFirst()
                 .orElse(null);
         gameService.submitScore(game, Integer.parseInt(firstTeamGols), Integer.parseInt(secondTeamGols));
+    }
+
+    void deleteGame(String gameId) throws IOException {
+        gameService.deleteGameFromDbAndFile(Integer.parseInt(gameId));
     }
 }

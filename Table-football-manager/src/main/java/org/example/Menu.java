@@ -83,7 +83,7 @@ public class Menu {
         gameController.saveNewGameInFileAndDB(validatedFirstTeam, validatedSecondTeam, validatedGameTime);
     }
 
-    private void changeGameTime() throws IOException, InterruptedException {
+    private void changeGameTime() throws IOException, InterruptedException, SQLException {
         sc.nextLine();
         System.out.println("Select game from below list to change game date. Please enter id:");
         gameController.getUpcomingGames();
@@ -102,7 +102,7 @@ public class Menu {
         playerController.showPlayersWithTeams();
         System.out.println("Type \"back\" to get back to menu.");
         String backToMenuInput = sc.nextLine();
-        while (!hasBackToMenuChosen(backToMenuInput)) {
+        while (!MenuService.hasBackToMenuChosen(backToMenuInput)) {
             System.out.println("Type \"back\" to get back to menu.");
             backToMenuInput = sc.nextLine();
         }
@@ -113,7 +113,7 @@ public class Menu {
         teamController.getAllTeam();
         System.out.println("Type \"back\" to get back to menu.");
         String backToMenuInput = sc.nextLine();
-        while (!hasBackToMenuChosen(backToMenuInput)) {
+        while (!MenuService.hasBackToMenuChosen(backToMenuInput)) {
             System.out.println("Type \"back\" to get back to menu.");
             backToMenuInput = sc.nextLine();
         }
@@ -124,7 +124,7 @@ public class Menu {
         gameController.getAllGames();
         System.out.println("Type \"back\" to get back to menu.");
         String backToMenuInput = sc.nextLine();
-        while (!hasBackToMenuChosen(backToMenuInput)) {
+        while (!MenuService.hasBackToMenuChosen(backToMenuInput)) {
             System.out.println("Type \"back\" to get back to menu.");
             backToMenuInput = sc.nextLine();
         }
@@ -135,13 +135,13 @@ public class Menu {
         gameController.getUpcomingGames();
         System.out.println("Type \"back\" to get back to menu.");
         String backToMenuInput = sc.nextLine();
-        while (!hasBackToMenuChosen(backToMenuInput)) {
+        while (!MenuService.hasBackToMenuChosen(backToMenuInput)) {
             System.out.println("Type \"back\" to get back to menu.");
             backToMenuInput = sc.nextLine();
         }
     }
 
-    private void submitGameScore() throws IOException {
+    private void submitGameScore() throws IOException, SQLException, InterruptedException {
         sc.nextLine();
         System.out.println("Provide id of game from below list which you would like to submit score:");
         gameController.getAlreadyStartedGames();
@@ -154,6 +154,17 @@ public class Menu {
         String secondTeamGols = sc.nextLine();
         String validatedSecondTeamGols = gameController.validateIfCorrectScoreEnter(secondTeamGols);
         gameController.submitGameScore(validatedGameId, validatedFirstTeamGols, validatedSecondTeamGols);
+    }
+
+    private void cancelGame() throws IOException, InterruptedException, SQLException {
+        sc.nextLine();
+        System.out.println("Provide id of game from below list which you would like to cancel:");
+        gameController.getUpcomingGames();
+        String gameId = sc.nextLine();
+        String validatedGameId = gameController.checkIfUpcomingGameExists(gameId);
+        gameController.deleteGame(validatedGameId);
+        System.out.println("Game has been deleted!");
+        Thread.sleep(2000);
     }
 
     void getMenu() throws SQLException, IOException, InterruptedException {
@@ -172,6 +183,7 @@ public class Menu {
                 11. Show all games
                 12. Show upcoming games
                 13. Submit game score
+                14. Cancel game
                 """);
         System.out.println("Choose one of above number!");
         while (!sc.hasNextInt()) {
@@ -193,15 +205,8 @@ public class Menu {
             case 11 -> showAllGamesChoice();
             case 12 -> showUpcomingGamesChoice();
             case 13 -> submitGameScore();
+            case 14 -> cancelGame();
             default -> System.out.println("Incorrect number chosen! Please try again!");
         }
-    }
-
-    private boolean hasBackToMenuChosen(String input) throws SQLException, IOException, InterruptedException {
-        if (input.equalsIgnoreCase("back")) {
-            getMenu();
-            return true;
-        }
-        return false;
     }
 }

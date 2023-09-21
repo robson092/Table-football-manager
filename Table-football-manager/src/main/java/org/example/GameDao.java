@@ -126,6 +126,7 @@ public class GameDao implements Dao<Game> {
                         resultSet.getTimestamp(5).toLocalDateTime()
                 );
                 game.setGameStatus(GameStatus.valueOf(resultSet.getString(8)));
+                game.setResult(resultSet.getString(9));
                 games.add(game);
             }
         } catch (SQLException e) {
