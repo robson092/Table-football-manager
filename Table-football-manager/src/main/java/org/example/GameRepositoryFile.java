@@ -43,11 +43,10 @@ public class GameRepositoryFile {
     }
 
     void deleteGameFromFile(Game game) throws IOException {
-        String gameName = game.getName();
         ObjectMapper objectMapper = ObjectMapperProvider.getInstance();
         List<Map<String, String>> fileContent = getFileContent(PATH_TO_GAMES_FILE);
         for (Map<String, String> singleGame : fileContent) {
-            if (singleGame.get("name").equalsIgnoreCase(gameName)) {
+            if (singleGame.get("id").equals(String.valueOf(game.getId()))) {
                 Set<String> gameMapKeys = singleGame.keySet();
                 singleGame.keySet().removeAll(gameMapKeys);
             }

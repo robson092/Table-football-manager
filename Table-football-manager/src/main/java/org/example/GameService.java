@@ -171,4 +171,14 @@ public class GameService {
         gameDao.update(game, new String[] {"result", game.getResult()});
         gameDao.update(game, new String[] {"game_status", String.valueOf(game.getGameStatus())});
     }
+
+    void deleteGameFromDbAndFile(long id) throws IOException {
+        List<Game> games = gameDao.getAll();
+        Game requestedGame = games.stream()
+                .filter(game -> game.getId() == id)
+                .findFirst()
+                .orElse(null);
+        gameDao.delete(requestedGame);
+        gameRepositoryFile.deleteGameFromFile(requestedGame);
+    }
 }
