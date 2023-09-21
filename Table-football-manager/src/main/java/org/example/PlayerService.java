@@ -4,16 +4,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.example.DataLoader.PATH_TO_USERS_FILE;
 import static org.example.DataLoader.getFileContent;
 
 public class PlayerService {
 
-    PlayerDao playerDao = new PlayerDao();
-    TeamDao teamDao = new TeamDao();
-    PlayerRepositoryFile playerRepositoryFile = new PlayerRepositoryFile();
+    private final PlayerDao playerDao = new PlayerDao();
+    private final TeamDao teamDao = new TeamDao();
+    private final PlayerRepositoryFile playerRepositoryFile = new PlayerRepositoryFile();
 
     boolean checkIfPlayerExistsAndHasNoTeam(String playerName) throws IOException {
         List<Map<String, String>> fileContent = getFileContent(PATH_TO_USERS_FILE);

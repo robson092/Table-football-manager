@@ -26,6 +26,9 @@ public class DataLoader {
     static final Path PATH_TO_GAMES_FILE = Paths.get("src/Tables/games_table.json");
     static final String PATH_TO_TABLES_DIRECTORY = "src/Tables/";
 
+    private DataLoader() {
+        throw new UnsupportedOperationException();
+    }
 
     private static Set<String> getDirectoryContent() {
         try (Stream<Path> stream = Files.list(Paths.get(PATH_TO_TABLES_DIRECTORY))) {

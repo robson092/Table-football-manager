@@ -9,17 +9,19 @@ public class ScheduledExecutor {
 
     private static final GameStatusManager gameStatusManager = new GameStatusManager();
 
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
+    private ScheduledExecutor() {
+    }
 
     static void updateGameStatuses() {
-        Runnable updateStatuses = () -> {
+        executorService.scheduleAtFixedRate(() -> {
             try {
-                gameStatusManager.updateInFile();
                 gameStatusManager.updateInDB();
+                gameStatusManager.updateInFile();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        };
-        executorService.scheduleAtFixedRate(updateStatuses, 0, 2, TimeUnit.MINUTES);
+        }, 0, 1, TimeUnit.MINUTES);
     }
 }

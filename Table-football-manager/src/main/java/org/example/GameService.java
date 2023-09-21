@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +12,7 @@ public class GameService {
 
     private final GameDao gameDao = new GameDao();
     private final GameRepositoryFile gameRepositoryFile = new GameRepositoryFile();
+    private final GameStatusManager gameStatusManager = new GameStatusManager();
 
     boolean isGameTimeInPast(String input) {
         LocalDateTime gameTime = extractDigitToCreateGameTime(input);
@@ -79,7 +79,9 @@ public class GameService {
         gameRepositoryFile.saveSingleGameToFile(game);
     }
 
-    List<Game> getAllGamesSorted() {
+    List<Game> getAllGamesSorted() throws IOException {
+        gameStatusManager.updateInDB();
+        gameStatusManager.updateInFile();
         List<Game> games = gameDao.getAllSortedByGameTime();
         for (Game game : games) {
             String result = game.getResult() == null ? "TBA" : game.getResult();
@@ -99,7 +101,7 @@ public class GameService {
         return games;
     }
 
-    List<Game> getAlreadyStartedGameSorted() {
+    List<Game> getAlreadyStartedGameSorted() throws IOException {
         List<Game> games = gameDao.getAllSortedByGameTime();
         for (Game game : games) {
             String result = game.getResult() == null ? "TBA" : game.getResult();
@@ -108,6 +110,8 @@ public class GameService {
         games.removeIf(game -> game.getGameTime()
                 .isAfter(LocalDateTime.now()));
         games.removeIf(game -> !game.getResult().equals("TBA"));
+        gameStatusManager.updateInDB();
+        gameStatusManager.updateInFile();
         return games;
     }
 
@@ -121,7 +125,7 @@ public class GameService {
         return false;
     }
 
-    boolean isStartedGameExist(String name) {
+    boolean isStartedGameExist(String name) throws IOException {
         List<Game> games = getAlreadyStartedGameSorted();
         for (Game game : games) {
             if (game.getId() == Integer.parseInt(name)) {

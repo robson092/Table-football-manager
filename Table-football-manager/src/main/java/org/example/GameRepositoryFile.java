@@ -12,8 +12,6 @@ import static org.example.DataLoader.*;
 
 public class GameRepositoryFile {
 
-    GameDao gameDao = new GameDao();
-
     private Map<String, String> fillMapWithGameAttributes(Game game) {
         Map<String, String> newGame = new HashMap<>();
         newGame.put("id", String.valueOf(game.getId()));

@@ -12,7 +12,7 @@ public class GameStatusManager {
         List<Game> games = gameDao.getAll();
         LocalDateTime now = LocalDateTime.now();
         for (Game singleGame : games) {
-            if (singleGame.getGameTime().isAfter(now) || singleGame.getGameTime().equals(now)) {
+            if (now.isAfter(singleGame.getGameTime()) || now.isEqual(singleGame.getGameTime())) {
                 singleGame.setGameStatus(GameStatus.STARTED);
             }
         }
